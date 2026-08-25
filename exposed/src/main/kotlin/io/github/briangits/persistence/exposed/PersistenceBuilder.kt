@@ -3,6 +3,7 @@ package io.github.briangits.persistence.exposed
 import io.github.briangits.persistence.exposed.repository.AnyRepository
 import io.github.briangits.persistence.exposed.repository.RepositoryImplementation
 import io.github.briangits.persistence.repository.Repository
+import kotlinx.coroutines.CoroutineDispatcher
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.reflect.KClass
 
@@ -19,6 +20,7 @@ inline fun <reified T : Repository<*, *, *>> PersistenceBuilder.bind(
 
 internal class PersistenceBuilderImpl(
     private val database: Database,
+    private val dispatcher: CoroutineDispatcher,
     block: PersistenceBuilder.() -> Unit
 ) : PersistenceBuilder {
     private val registry = mutableMapOf<KClass<*>, RepositoryImplementation<AnyRepository>>()
@@ -34,5 +36,5 @@ internal class PersistenceBuilderImpl(
         registry[type] = implementation
     }
 
-    fun build(): ExposedPersistence = ExposedPersistence(database, registry)
+    fun build(): ExposedPersistence = ExposedPersistence(database, registry, dispatcher)
 }
