@@ -3,5 +3,7 @@ plugins {
 }
 
 dependencies {
+    api(projects.core)
+
     implementation(exposed.core)
 }
