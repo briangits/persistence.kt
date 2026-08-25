@@ -3,3 +3,4 @@ exposed = "1.4.0"
 
 [libraries]
 core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }

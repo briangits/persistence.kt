@@ -6,4 +6,5 @@ dependencies {
     api(projects.core)
 
     implementation(exposed.core)
+    implementation(exposed.jdbc)
 }
