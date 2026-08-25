@@ -7,6 +7,7 @@ import io.github.briangits.persistence.query.pagination.Paginated
 
 interface IRepository<T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> {
     val filter: () -> TFilters
+    val id: TFilters.(T) -> Unit
 
     suspend fun count(block: FilterBuilder<TFilters>): Long
 
