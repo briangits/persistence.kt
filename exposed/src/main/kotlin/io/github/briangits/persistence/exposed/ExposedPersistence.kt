@@ -44,3 +44,8 @@ class ExposedPersistence internal constructor(
         return ExposedTransaction(control, registry)
     }
 }
+
+fun ExposedPersistence(
+    database: Database,
+    block: PersistenceBuilder.() -> Unit
+): ExposedPersistence = PersistenceBuilderImpl(database, block).build()
