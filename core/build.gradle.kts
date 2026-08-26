@@ -40,4 +40,10 @@ kotlin {
     linuxArm64()
 
     mingwX64()
+
+    sourceSets {
+        commonTest.dependencies {
+            implementation(kt.test)
+        }
+    }
 }
