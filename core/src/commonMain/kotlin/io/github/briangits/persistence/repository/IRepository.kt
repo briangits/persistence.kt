@@ -34,3 +34,9 @@ interface IRepository<T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> {
 
     suspend fun delete(entity: T)
 }
+
+fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.create(block: () -> TCreate) = create(block())
+
+suspend fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.save(block: () -> T) = save(block())
+
+suspend fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.delete(block: () -> T) = delete(block())
