@@ -1,6 +1,10 @@
 [versions]
 exposed = "1.4.0"
+h2 = "2.4.240"
 
 [libraries]
 core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+
+# Drivers
+h2 = { module = "com.h2database:h2", version.ref = "h2" }

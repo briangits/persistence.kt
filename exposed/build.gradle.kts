@@ -11,4 +11,8 @@ dependencies {
 
     // Coroutines
     implementation(kotlinx.coroutines)
+
+    // Tests
+    testImplementation(kt.test)
+    testImplementation(exposed.h2)
 }
