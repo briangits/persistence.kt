@@ -31,6 +31,7 @@ import io.github.briangits.persistence.query.filters.operators.StartsWith
 import io.github.briangits.persistence.query.filters.operators.StringOperator
 import io.github.briangits.persistence.query.filters.operators.ValueComparisonOperator
 import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.LikePattern
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.between
@@ -55,7 +56,7 @@ typealias StringColumn = Column<String?>
 private fun <T : Any, TOperator : EqualityOperator<T, *>> TOperator.compile(
     colum: AnyColumn,
     op: AnyColumn.(Any) -> Op<Boolean>
-): Op<Boolean> = (colum).op(this.value as Any)
+): Op<Boolean> = colum.op(this.value as Any)
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any, TOperator : ValueComparisonOperator<T, *>> TOperator.compile(
@@ -89,18 +90,35 @@ private fun <T : Any, V> FieldOperator<T, V>.compile(column: AnyColumn) =
     when (this) {
         is Eq<T, *> -> compile(column) { eq(it) }
         is NEq<T, *> -> compile(column) { neq(it) }
+
         is Gt<T, *> -> compile(column) { greater(it) }
         is Gte<T, *> -> compile(column) { greaterEq(it) }
         is Lt<T, *> -> compile(column) { less(it) }
         is Lte<T, *> -> compile(column) { lessEq(it) }
         is Between<T, *> -> compile(column) { start, end -> between(start, end) }
+
         is Like<T> -> compile(column) { like(it) }
+        is Contains<T> -> compile(column) {
+            val pattern = LikePattern.ofLiteral("")
+                .plus("%")
+                .plus(LikePattern.ofLiteral(it))
+                .plus("%")
+
+            like(pattern)
+        }
+        is StartsWith<T> -> compile(column) { like(LikePattern.ofLiteral(it) + "%") }
+        is EndsWith<T> -> compile(column) {
+            val pattern = LikePattern.ofLiteral("")
+                .plus("%")
+                .plus(LikePattern.ofLiteral(it))
+
+            like(pattern)
+        }
         is Matches<T> -> compile(column) { regexp(it) }
-        is Contains<T> -> compile(column) { regexp(Regex.escape(it)) }
-        is StartsWith<T> -> compile(column) { regexp("^${Regex.escape(it)}") }
-        is EndsWith<T> -> compile(column) { regexp("${Regex.escape(it)}$") }
+
         is In<T, *> -> compile(column) { inList(it) }
         is NotIn<T, *> -> compile(column) { notInList(it) }
+
         is IsNull<T, *> -> compile(column) { isNull() }
         is IsNotNull<T, *> -> compile(column) { isNotNull() }
     }
