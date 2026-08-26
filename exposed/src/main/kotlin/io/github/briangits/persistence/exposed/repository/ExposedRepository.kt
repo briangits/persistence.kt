@@ -23,7 +23,7 @@ interface ExposedRepository<
     TFilters : Filters<T, TFilters>
 > : IRepository<T, TCreate, TFilters> {
     val table: TTable
-    val operator: EntityOperator<TTable, T, TFilters>
+    val operator: EntityOperator<TTable, T>
 
     val transaction: TransactionControl
 
