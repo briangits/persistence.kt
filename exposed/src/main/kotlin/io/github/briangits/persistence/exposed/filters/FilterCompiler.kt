@@ -1,11 +1,11 @@
 package io.github.briangits.persistence.exposed.filters
 
-import io.github.briangits.persistence.exposed.relations.PropertyColumRelation
 import io.github.briangits.persistence.exposed.relations.PropertyColumRelations
 import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.ArrayOperator
 import io.github.briangits.persistence.query.filters.operators.Between
+import io.github.briangits.persistence.query.filters.operators.ComparisonOperator
 import io.github.briangits.persistence.query.filters.operators.Contains
 import io.github.briangits.persistence.query.filters.operators.EndsWith
 import io.github.briangits.persistence.query.filters.operators.Eq
@@ -50,77 +50,53 @@ import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.regexp
 
-typealias AnyColumn = Column<Any>
-typealias StringColumn = Column<String?>
-
-private fun <T : Any, TOperator : EqualityOperator<T, *>> TOperator.compile(
-    colum: AnyColumn,
-    op: AnyColumn.(Any) -> Op<Boolean>
-): Op<Boolean> = colum.op(this.value as Any)
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any, TOperator : ValueComparisonOperator<T, *>> TOperator.compile(
-    colum: AnyColumn,
-    op: AnyColumn.(Comparable<Any>) -> Op<Boolean>
-): Op<Boolean> = colum.op(this.value as Comparable<Any>)
-
-private fun <T : Any, TOperator : Between<T, *>> TOperator.compile(
-    colum: AnyColumn,
-    op: AnyColumn.(Any, Any) -> Op<Boolean>
-): Op<Boolean> = colum.op(this.start as Any, this.end as Any)
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any, TOperator : StringOperator<T>> TOperator.compile(
-    colum: AnyColumn,
-    op: StringColumn.(String) -> Op<Boolean>
-): Op<Boolean> = (colum as StringColumn).op(this.value)
-
-@Suppress("UNCHECKED_CAST")
-private fun <T : Any, TOperator : ArrayOperator<T, *>> TOperator.compile(
-    colum: AnyColumn,
-    op: AnyColumn.(Iterable<Any>) -> Op<Boolean>
-): Op<Boolean> = colum.op(this.values as Iterable<Any>)
-
-private fun <T : Any, TOperator : NullOperator<T, *>> TOperator.compile(
-    colum: AnyColumn,
-    op: AnyColumn.(TOperator) -> Op<Boolean>
-): Op<Boolean> = colum.op(this)
-
-private fun <T : Any, V> FieldOperator<T, V>.compile(column: AnyColumn) =
+private fun <T : Any> StringOperator<T>.compile(column: Column<String?>): Op<Boolean> =
     when (this) {
-        is Eq<T, *> -> compile(column) { eq(it) }
-        is NEq<T, *> -> compile(column) { neq(it) }
-
-        is Gt<T, *> -> compile(column) { greater(it) }
-        is Gte<T, *> -> compile(column) { greaterEq(it) }
-        is Lt<T, *> -> compile(column) { less(it) }
-        is Lte<T, *> -> compile(column) { lessEq(it) }
-        is Between<T, *> -> compile(column) { start, end -> between(start, end) }
-
-        is Like<T> -> compile(column) { like(it) }
-        is Contains<T> -> compile(column) {
-            val pattern = LikePattern.ofLiteral("")
+        is Like -> column.like(value)
+        is Contains -> column.like(
+            LikePattern.ofLiteral("")
                 .plus("%")
-                .plus(LikePattern.ofLiteral(it))
+                .plus(LikePattern.ofLiteral(value))
                 .plus("%")
+        )
+        is StartsWith -> column.like(LikePattern.ofLiteral(value) + "%")
+        is EndsWith -> column.like(
+            LikePattern.ofLiteral("")
+                .plus("%")
+                .plus(LikePattern.ofLiteral(value))
+        )
+        is Matches -> column.regexp(value)
+    }
 
-            like(pattern)
+private fun <T : Any, V> FieldOperator<T, V>.compile(column: Column<V>) =
+    @Suppress("UNCHECKED_CAST")
+    when (this) {
+        is EqualityOperator -> when (this) {
+            is Eq<*, *> -> column.eq(value)
+            is NEq<*, *> -> column.neq(value)
         }
-        is StartsWith<T> -> compile(column) { like(LikePattern.ofLiteral(it) + "%") }
-        is EndsWith<T> -> compile(column) {
-            val pattern = LikePattern.ofLiteral("")
-                .plus("%")
-                .plus(LikePattern.ofLiteral(it))
 
-            like(pattern)
+        is ComparisonOperator -> when (this) {
+            is ValueComparisonOperator -> when (this) {
+                is Gt<*, *> -> column.greater(value)
+                is Gte<*, *> -> column.greaterEq(value)
+                is Lt<*, *> -> column.less(value)
+                is Lte<*, *> -> column.lessEq(value)
+            }
+            is Between<*, *> -> column.between(start, end)
         }
-        is Matches<T> -> compile(column) { regexp(it) }
 
-        is In<T, *> -> compile(column) { inList(it) }
-        is NotIn<T, *> -> compile(column) { notInList(it) }
+        is StringOperator -> compile(column as Column<String?>)
 
-        is IsNull<T, *> -> compile(column) { isNull() }
-        is IsNotNull<T, *> -> compile(column) { isNotNull() }
+        is ArrayOperator -> when (this) {
+            is In -> column.inList(values)
+            is NotIn -> column.notInList(values)
+        }
+
+        is NullOperator -> when (this) {
+            is IsNull -> column.isNull()
+            is IsNotNull -> column.isNotNull()
+        }
     }
 
 private fun <T : Any> Operator.compile(relations: PropertyColumRelations<T>): Op<Boolean> =
@@ -136,18 +112,11 @@ private fun <T : Any> Operator.compile(relations: PropertyColumRelations<T>): Op
         }
 
         is FieldOperator<*, *> -> {
-            val relation =
-                relations.firstOrNull { it.prop == prop }
+            val relation = relations.firstOrNull { it.prop == prop }
                     ?: error("No relation found for property $prop")
 
             @Suppress("UNCHECKED_CAST")
-            val column =
-                when (relation) {
-                    is PropertyColumRelation.Id -> relation.column
-                    is PropertyColumRelation.Field -> relation.column
-                } as AnyColumn
-
-            this.compile(column)
+            (this as FieldOperator<T, Any>).compile(relation.column as Column<Any>)
         }
     }
 
