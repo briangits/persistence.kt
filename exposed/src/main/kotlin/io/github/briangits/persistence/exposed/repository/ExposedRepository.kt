@@ -87,7 +87,7 @@ interface ExposedRepository<
             Paginated(offset, limit, total, items)
         }
 
-    override suspend fun save(entity: T) {
+    override suspend fun save(entity: T): T {
         transaction.execute {
             table.upsert {
                 for (relation in operator.relations) {
@@ -95,6 +95,8 @@ interface ExposedRepository<
                 }
             }
         }
+
+        return entity
     }
 
     override suspend fun delete(entity: T) {

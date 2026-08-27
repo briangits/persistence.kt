@@ -30,13 +30,33 @@ interface IRepository<T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> {
 
     fun create(create: TCreate): T
 
-    suspend fun save(entity: T)
+    suspend fun save(entity: T): T
 
     suspend fun delete(entity: T)
 }
 
-fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.create(block: () -> TCreate) = create(block())
+fun <
+    T : Any,
+    TCreate : Any,
+    TFilters : Filters<T, TFilters>
+> IRepository<T, TCreate, TFilters>.create(
+    block: () -> TCreate
+) = create(block())
 
-suspend fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.save(block: () -> T) = save(block())
+suspend fun <
+    T : Any,
+    TCreate : Any,
+    TFilters : Filters<T, TFilters>,
+    TRepository : IRepository<T, TCreate, TFilters>
+> TRepository.save(
+    block: TRepository.() -> T
+): T = save(block())
 
-suspend fun <T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> IRepository<T, TCreate, TFilters>.delete(block: () -> T) = delete(block())
+suspend fun <
+    T : Any,
+    TCreate : Any,
+    TFilters : Filters<T, TFilters>,
+    TRepository : IRepository<T, TCreate, TFilters>
+> TRepository.delete(
+    block: TRepository.() -> T
+) = delete(block())
