@@ -1,7 +1,9 @@
 package domain
 
+import kotlin.uuid.Uuid
+
 data class User(
-    val id: Long,
+    val id: Uuid,
     val name: String,
     val email: String?,
     val age: Int

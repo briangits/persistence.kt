@@ -30,10 +30,10 @@ import kotlin.test.assertEquals
 
 class FilterCompilerTests {
     val relations = setOf(
-        PropertyColumRelation.Id(User::id, Users.id),
-        PropertyColumRelation.Field(User::name, Users.name),
-        PropertyColumRelation.Field(User::email, Users.email),
-        PropertyColumRelation.Field(User::age, Users.age)
+        PropertyColumRelation(User::id, Users.id),
+        PropertyColumRelation(User::name, Users.name),
+        PropertyColumRelation(User::email, Users.email),
+        PropertyColumRelation(User::age, Users.age)
     )
 
     val db = Database.connect(
