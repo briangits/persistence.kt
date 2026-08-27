@@ -4,9 +4,9 @@ import io.github.briangits.persistence.exposed.relations.PropertyColumRelations
 import io.github.briangits.persistence.exposed.relations.RelationsBuilder
 import io.github.briangits.persistence.exposed.relations.RelationsBuilderImpl
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.Table
 
-open class EntityOperator<TTable : IdTable<*>, T : Any>(
+open class EntityOperator<TTable : Table, T : Any>(
     open val fromDB: TTable.(ResultRow) -> T,
     relations: RelationsBuilder<T>.() -> Unit
 ) {

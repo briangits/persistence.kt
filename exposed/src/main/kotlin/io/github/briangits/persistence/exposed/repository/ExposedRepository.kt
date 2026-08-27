@@ -8,16 +8,14 @@ import io.github.briangits.persistence.query.filters.FilterBuilder
 import io.github.briangits.persistence.query.pagination.Paginated
 import io.github.briangits.persistence.repository.IRepository
 import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.alias
-import org.jetbrains.exposed.v1.core.count
-import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 interface ExposedRepository<
-    TTable : IdTable<*>,
+    TTable : Table,
     T : Any,
     TCreate : Any,
     TFilters : Filters<T, TFilters>
@@ -33,24 +31,21 @@ interface ExposedRepository<
 
     override suspend fun count(block: FilterBuilder<TFilters>): Long =
         transaction.execute {
-            table
-                .selectAll()
+            table.selectAll()
                 .where { block.compile() }
                 .count()
         }
 
     override suspend fun exists(block: FilterBuilder<TFilters>): Boolean =
         transaction.execute {
-            !table
-                .selectAll()
+            !table.selectAll()
                 .where { block.compile() }
                 .empty()
         }
 
     override suspend fun find(block: FilterBuilder<TFilters>): T? =
         transaction.execute {
-            table
-                .selectAll()
+            table.selectAll()
                 .where { block.compile() }
                 .limit(1)
                 .singleOrNull()
@@ -59,8 +54,7 @@ interface ExposedRepository<
 
     override suspend fun findAll(block: FilterBuilder<TFilters>): List<T> =
         transaction.execute {
-            table
-                .selectAll()
+            table.selectAll()
                 .where { block.compile() }
                 .map { operator.fromDB(table, it) }
         }
@@ -73,34 +67,21 @@ interface ExposedRepository<
             val offset = pagination.offset
             val limit = pagination.limit
 
-            val totalCount =
-                table.id
-                    .count()
-                    .over()
-                    .alias("totalCount")
             val filters = block.compile()
 
-            val query =
-                table
-                    .select(table.columns + totalCount)
-                    .where { filters }
-                    .offset(offset)
+            val query = table.select(table.columns)
+                .where { filters }
+                .offset(offset)
 
             val limitedQuery = if (limit != null) query.limit(limit) else query
 
-            var total = 0L
-            val items =
-                limitedQuery.map {
-                    total = it[totalCount]
-                    operator.fromDB(table, it)
-                }
-
-            if (items.isEmpty() && offset > 0) {
-                total =
-                    table
-                        .selectAll()
-                        .where { filters }
-                        .count()
+            val items = limitedQuery.map { operator.fromDB(table, it) }
+            val total = when {
+                limit == null -> items.size.toLong()
+                items.size < limit && items.isNotEmpty() -> offset + items.size.toLong()
+                else -> table.selectAll()
+                    .where { filters }
+                    .count()
             }
 
             Paginated(offset, limit, total, items)
