@@ -22,6 +22,9 @@ import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
 import kotlin.reflect.KProperty1
 
+@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+private typealias Exact = kotlin.internal.Exact
+
 open class Filters<T : Any, TInstance: Filters<T, TInstance>>(
     private val factory: () -> TInstance
 ) {
@@ -31,9 +34,9 @@ open class Filters<T : Any, TInstance: Filters<T, TInstance>>(
         operators.add(operator)
     }
 
-    infix fun <V> KProperty1<T, V>.eq(value: V) =
+    infix fun <V> KProperty1<T, @Exact V>.eq(value: V) =
         if (value == null) isNull() else add(Eq(this, value))
-    infix fun <V> KProperty1<T, V>.neq(value: V) =
+    infix fun <V> KProperty1<T, @Exact V>.neq(value: V) =
         if (value == null) isNotNull() else add(NEq(this, value))
 
     infix fun <V : Comparable<V>> KProperty1<T, V?>.gt(value: V) = add(Gt(this, value))
