@@ -30,7 +30,7 @@ fun closeDB(db: Database) {
     TransactionManager.closeAndUnregister(db)
 }
 
-private fun createTransactionControl(db: Database): TransactionControl =
+fun createTransactionControl(db: Database): TransactionControl =
     TransactionControl(
         transaction = db.transactionManager.newTransaction(),
         dispatcher = Dispatchers.IO
