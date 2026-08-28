@@ -30,3 +30,5 @@ rootProject.name = "persistence"
 
 include(":core")
 include(":exposed")
+
+include(":version-catalog")
