@@ -15,4 +15,5 @@ dependencies {
     // Tests
     testImplementation(kt.test)
     testImplementation(exposed.h2)
+    testImplementation(kotlinx.coroutines.test)
 }
