@@ -44,6 +44,8 @@ class ExposedPersistence internal constructor(
         }
 
     override suspend fun createTransaction(): Transaction {
+        require(initialized) { "Persistence is not initialized" }
+
         val transaction = database.transactionManager.newTransaction()
         val control = TransactionControl(transaction, dispatcher)
 
