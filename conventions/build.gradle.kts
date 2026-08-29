@@ -12,4 +12,5 @@ fun DependencyHandlerScope.plugin(plugin: Provider<PluginDependency>) {
 }
 
 dependencies {
+    plugin(libutils.plugins.mavenPublish)
 }
