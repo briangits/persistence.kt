@@ -1,5 +1,18 @@
 plugins {
-    `kotlin-dsl`
+     alias(kt.plugins.jvm)
+    `java-gradle-plugin`
+}
+
+group = "io.github.briangits.persistence.conventions"
+version = "0.0.1"
+
+gradlePlugin {
+    plugins {
+        create("publishing") {
+            id = "$group.publishing"
+            implementationClass = "$group.publishing.PublishPlugin"
+        }
+    }
 }
 
 fun DependencyHandlerScope.plugin(plugin: Provider<PluginDependency>) {
@@ -12,5 +25,8 @@ fun DependencyHandlerScope.plugin(plugin: Provider<PluginDependency>) {
 }
 
 dependencies {
+    implementation(gradleApi())
+    implementation(gradleKotlinDsl())
+
     plugin(libutils.plugins.mavenPublish)
 }

@@ -16,6 +16,7 @@ dependencyResolutionManagement {
     }
 
     versionCatalogs {
+        create("kt").from(files("version-catalogs/kotlin.versions.toml"))
         create("libutils").from(files("version-catalogs/libutils.versions.toml"))
     }
 }
