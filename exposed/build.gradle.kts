@@ -1,5 +1,8 @@
 plugins {
     alias(kt.plugins.jvm)
+
+    // Publishing
+    id("io.github.briangits.persistence.conventions.publishing")
 }
 
 dependencies {
@@ -16,4 +19,9 @@ dependencies {
     testImplementation(kt.test)
     testImplementation(exposed.h2)
     testImplementation(kotlinx.coroutines.test)
+}
+
+artifact {
+    name = "exposed"
+    description = "Persistence abstraction implememntation using Exposed"
 }

@@ -2,8 +2,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    // KMP
     alias(kt.plugins.multiplatform)
     alias(kt.plugins.multiplatform.android)
+
+    // Publishing
+    id("io.github.briangits.persistence.conventions.publishing")
 }
 
 kotlin {
@@ -46,4 +50,9 @@ kotlin {
             implementation(kt.test)
         }
     }
+}
+
+artifact {
+    name = "core"
+    description = "Persisitence abstraction with pluggable implementations for DDD"
 }
