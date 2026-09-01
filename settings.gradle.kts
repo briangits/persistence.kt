@@ -32,6 +32,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "persistence"
 
 include(":core")
+include(":unit-of-work")
+
 include(":exposed")
 
 include(":version-catalog")
