@@ -5,6 +5,9 @@ plugins {
     // KMP
     alias(kt.plugins.multiplatform)
     alias(kt.plugins.multiplatform.android)
+
+    // Publishing
+    id("io.github.briangits.persistence.conventions.publishing")
 }
 
 kotlin {
@@ -47,4 +50,9 @@ kotlin {
             implementation(projects.core)
         }
     }
+}
+
+artifact {
+    name = "uow"
+    description = "Persistence Unit of Work"
 }
