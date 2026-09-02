@@ -15,7 +15,13 @@ import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transactionManager
 
-class ExposedPersistence internal constructor(
+/**
+ * Implementation of [Persistence] using the JetBrains Exposed library.
+ *
+ * Manages database connection lifecycle, transactional scopes, and repository resolution
+ * within the Exposed framework.
+ */
+internal class ExposedPersistence(
     private val database: Database,
     private val registry: RepositoryRegistry,
     private val dispatcher: CoroutineDispatcher
@@ -53,8 +59,18 @@ class ExposedPersistence internal constructor(
     }
 }
 
+/**
+ * Creates and configures a persistence instance
+ * backed by [io.github.briangits.persistence.exposed.ExposedPersistence]
+ *
+ * @param database The Exposed [Database] instance.
+ * @param dispatcher The [CoroutineDispatcher] to use for database operations. Defaults to [Dispatchers.IO].
+ * @param block A configuration block for defining repository bindings using the [PersistenceBuilder] DSL.
+ * @return A configured [ExposedPersistence] instance.
+ */
+@Suppress("FunctionName")
 fun ExposedPersistence(
     database: Database,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
     block: PersistenceBuilder.() -> Unit
-): ExposedPersistence = PersistenceBuilderImpl(database, dispatcher, block).build()
+): Persistence = PersistenceBuilderImpl(database, dispatcher, block).build()

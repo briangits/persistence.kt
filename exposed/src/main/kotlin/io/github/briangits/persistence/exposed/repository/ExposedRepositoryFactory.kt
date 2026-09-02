@@ -11,6 +11,13 @@ internal typealias AnyRepository = Repository<*, *, *>
 internal typealias RepositoryRegistry =
     Map<KClass<*>, RepositoryImplementation<AnyRepository>>
 
+/**
+ * Internal factory implementation responsible for creating and caching repository instances
+ * within an active transactional context.
+ *
+ * Resolves repository implementations from the [RepositoryRegistry] and injects the
+ * necessary [TransactionControl].
+ */
 internal class ExposedRepositoryFactory(
     private val control: TransactionControl,
     private val registry: RepositoryRegistry

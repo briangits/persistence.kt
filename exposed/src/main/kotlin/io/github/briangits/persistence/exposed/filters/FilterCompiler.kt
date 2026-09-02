@@ -120,6 +120,6 @@ private fun <T : Any> Operator.compile(relations: PropertyColumRelations<T>): Op
         }
     }
 
-infix fun <T : Any, TFilters : Filters<T, TFilters>> TFilters.compile(
+internal infix fun <T : Any, TFilters : Filters<T, TFilters>> TFilters.compile(
     relations: PropertyColumRelations<T>
 ): Op<Boolean> = this.build().compile(relations)
