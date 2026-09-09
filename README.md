@@ -1,9 +1,9 @@
 # persistence
 
-A lightweight, type-safe DDD persistence abstraction for Kotlin.
+DDD-oriented persistence abstraction for Kotlin.
 
 `persistence` provides a unified API for accessing and persisting domain data 
-while keeping your domain logic independent of the underlying persistence technology.
+while keeping your domain layer independent of the underlying persistence implementation.
 
 It combines the **Repository** and **Unit of Work** patterns with a type-safe filtering DSL
 allowing persistence implementations to be swapped without changing application or domain code.
@@ -23,13 +23,13 @@ allowing persistence implementations to be swapped without changing application 
 
 The library is built around a small set of abstractions:
 
-- **Persistence** - The high-level entry point for managing the persistence lifecycle,
+- **Persistence** - The entry point for managing the persistence lifecycle,
     creating & executing transactions.
 - **Repository** - Provides a standard CRUD API for a domain entity:
     count, exists, find, findAll, create, save, and delete.
 - **Filters** - A type-safe DSL for constructing queries using Kotlin property references,
     such as User::name eq "John".
-- **Transaction** - Represents an atomic unit of work and acts as a RepositoryFactory 
+- **Transaction** - Represents an atomic unit of work and acts as a `RepositoryFactory` 
     for resolving repositories within the transaction.
 - **UnitOfWork** - Coordinates multiple repositories and provides lifecycle hooks 
     such as beforeCommit and afterCommit.
@@ -125,7 +125,7 @@ suspend fun registerUser(persistence: Persistence, newUser: NewUser) {
 }
 ```
 
-You can also create & manually manage a transaction
+You can also create & manually manage a transaction:
 
 ```kotlin
 fun registerUser(newUser: NewUser) {
@@ -195,6 +195,16 @@ val users = repo.findAll {
 `UnitOfWork` coordinates operations across multiple repositories 
 and provides lifecycle hooks around transaction completion.
 
+Add the dependency:
+
+```kotlin
+dependencies {
+    implementation("io.github.briangits.persistence:uow:<version>")
+}
+```
+
+Define a unit of work:
+
 ```kotlin
 class MyUnitOfWork(transaction: Transaction) : UnitOfWork<MyUnitOfWork>(transaction) {
     val users = get<UserRepository>()
@@ -235,7 +245,7 @@ suspend fun complexOperation(uow: MyUnitOfWork) {
 The core library defines the abstractions used by the domain and application layers,
 while persistence adapters provide the actual database or storage implementation.
 
-This allows the same application code to work with different persistence technologies
+This allows the same application code to work with different persistence libraries/frameworks
 without coupling the domain model to a specific ORM or database library.
 
 Currently supported implementations include:
