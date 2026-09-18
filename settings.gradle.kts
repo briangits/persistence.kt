@@ -29,7 +29,7 @@ dependencyResolutionManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "persistence"
+rootProject.name = "persistence-kt"
 
 include(":core")
 include(":unit-of-work")

@@ -2,7 +2,7 @@
 
 DDD-oriented persistence abstraction for Kotlin.
 
-`persistence` provides a unified API for accessing and persisting domain data 
+`persistence.kt` provides a unified API for accessing and persisting domain data 
 while keeping your domain layer independent of the underlying persistence implementation.
 
 It combines the **Repository** and **Unit of Work** patterns with a type-safe filtering DSL
@@ -240,7 +240,7 @@ suspend fun complexOperation(uow: MyUnitOfWork) {
 
 ## Implementations
 
-`persistence` is intentionally implementation-agnostic.
+`persistence.kt` is intentionally implementation-agnostic.
 
 The core library defines the abstractions used by the domain and application layers,
 while persistence adapters provide the actual database or storage implementation.
