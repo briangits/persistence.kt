@@ -1,11 +1,9 @@
 # Implementing Persistence with Exposed
 
-This guide explains how to implement the `persistence` abstractions
-using [Exposed](https://www.jetbrains.com/help/exposed/home.html).
+This guide explains how to implement the persistence API using [Exposed](https://www.jetbrains.com/help/exposed/home.html).
 
-The Exposed adapter provides the database-specific implementation 
-of`Persistence`, `Transaction`, and `Repository`, 
-allowing your domain and application code to remain independent of Exposed.
+The Exposed adapter provides the database-specific implementations
+for `Persistence`, `Transaction`, and `Repository`.
 
 ---
 
@@ -18,14 +16,13 @@ implementation("io.github.briangits.persistence:exposed:<version>")
 ```
 
 You'll also need the appropriate Exposed JDBC and database driver dependencies.
-See [Connecting to a Database](https://www.jetbrains.com/help/exposed/working-with-database.html#connecting-to-a-database)
-for a guide on setting this up.
+See [Connecting to a Database](https://www.jetbrains.com/help/exposed/working-with-database.html#connecting-to-a-database) for a guide on setting this up.
 
 ---
 
 ## Configuring Persistence
 
-Create an `ExposedPersistence` instance with an Exposed `Database` 
+Create an `ExposedPersistence` instance with an Exposed `Database`
 and bind your repository implementations.
 
 ```kotlin
@@ -43,7 +40,7 @@ val persistence: Persistence = ExposedPersistence(database) {
 }
 ```
 
-The `bind` call tells the persistence layer which implementation should be used 
+The `bind` call tells the adapter which implementation should be used 
 whenever `UserRepository` is requested.
 
 Initialize the persistence layer when your application starts:
@@ -52,14 +49,11 @@ Initialize the persistence layer when your application starts:
 persistence.initialize()
 ```
 
-From this point onward, application code can resolve `UserRepository` without
-knowing that Exposed is being used underneath.
-
 ---
 
 ## Define the Persistence Model
 
-Your domain model and database schema are separate concerns.
+Domain models need to be mapped to the database's persistence models.
 
 For example, given the following domain model:
 
@@ -83,7 +77,7 @@ object UsersTable : Table("users") {
 }
 ```
 
-The table is an Exposed-specific representation of the persistence model
+The table is an Exposed-specific representation of the domain model
 and does not need to be exposed to the domain layer.
 
 ---
@@ -94,7 +88,7 @@ To implement a repository, extend `ExposedRepository` and provide:
 
 1. The Exposed table.
 2. An `EntityOperator` for mapping database rows to domain entities.
-3. The transaction associated with the repository.
+3. Accept a transaction which the repository will be bound to.
 
 ### Create an Entity Operator
 
@@ -120,10 +114,8 @@ val userEntityOperator = EntityOperator<UsersTable, User>(
 ```
 
 The `fromDB` function handles the database-to-domain mapping,
-while the `mapsTo` declarations associate domain properties with their corresponding table columns.
-
-This mapping allows the generic repository implementation to perform persistence operations 
-without knowing anything about the specific `User` entity.
+while the `mapsTo` declarations associate domain properties with their corresponding
+table columns.
 
 You can also define the operator as an `object`:
 
@@ -159,7 +151,8 @@ when the repository is created.
 
 ## Using the Repository
 
-Once the repository has been bound to `ExposedPersistence`, it can be resolved from a transaction:
+Once the repository has been bound to `ExposedPersistence`,
+it can then be resolved from a transaction:
 
 ```kotlin
 suspend fun createUser(
@@ -175,8 +168,6 @@ suspend fun createUser(
     }
 }
 ```
-
-Your application code should only depend on `Persistence` and does not need to import Exposed types.
 
 ---
 
@@ -265,13 +256,3 @@ val persistence: Persistence = ExposedPersistence(database) {
 
 persistence.initialize()
 ```
-
-The resulting architecture keeps the responsibilities separated:
-
-- **Domain** — defines entities, filters, and repository interfaces.
-- **Persistence abstraction** — defines transactions, repositories, and query semantics.
-- **Exposed adapter** — maps those abstractions to Exposed.
-- **Database** — stores the actual data.
-
-This allows you to replace Exposed with another persistence implementation
-without making changes to the domain or application layers.

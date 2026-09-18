@@ -1,49 +1,19 @@
-# persistence
+# persistence.kt
 
-DDD-oriented persistence abstraction for Kotlin.
+A data persistence abstraction layer for Kotlin.
 
-`persistence.kt` provides a unified API for accessing and persisting domain data 
-while keeping your domain layer independent of the underlying persistence implementation.
-
-It combines the **Repository** and **Unit of Work** patterns with a type-safe filtering DSL
-allowing persistence implementations to be swapped without changing application or domain code.
+`persistence.kt` provides a unified API for accessing and persisting data 
+without coupling your application to a specific persistence library/framework. 
 
 ---
-
-## Table of Contents
-- [Core Concepts](#core-concepts)
-- [Quick Start](#quick-start)
-- [Filter DSL](#filter-dsl)
-- [Unit of Work](#unit-of-work)
-- [Implementations](#implementations)
-
----
-
-## Core Concepts
-
-The library is built around a small set of abstractions:
-
-- **Persistence** - The entry point for managing the persistence lifecycle,
-    creating & executing transactions.
-- **Repository** - Provides a standard CRUD API for a domain entity:
-    count, exists, find, findAll, create, save, and delete.
-- **Filters** - A type-safe DSL for constructing queries using Kotlin property references,
-    such as User::name eq "John".
-- **Transaction** - Represents an atomic unit of work and acts as a `RepositoryFactory` 
-    for resolving repositories within the transaction.
-- **UnitOfWork** - Coordinates multiple repositories and provides lifecycle hooks 
-    such as beforeCommit and afterCommit.
-
-The application and domain layers depend only on these abstractions.
-Persistence implementations are provided separately through adapters.
 
 ## Quick Start
 
-### Add the dependency
+### 1. Add the dependency
 
 ```kotlin
 dependencies {
-    implementation("io.github.briangits.persistence:persistence:<version>")
+    implementation("io.github.briangits.persistence:core:<version>")
 }
 ```
 
@@ -83,7 +53,7 @@ interface UserRepository : Repository<User, NewUser, UserFilters>(
 )
 ```
 
-### 2. Basic CRUD Operations
+### 3. Basic CRUD Operations
 
 Repositories provide a simple CRUD API for managing entities:
 
@@ -173,7 +143,7 @@ Filters cab be grouped using:
 - `oneOf` - OR
 - `not` - NOT
 
-Multiple expressions at the top level of a  filter block are implicitly grouped using `allOf`.
+Multiple expressions at the top level of a filter block are implicitly grouped using `allOf`.
 
 ```kotlin
 val users = repo.findAll {
@@ -181,7 +151,7 @@ val users = repo.findAll {
         name startsWith "Jane"
         
         allOf {
-            email ends "@company.com"
+            email endsWith "@company.com"
             name endsWith "Doe"
         }
     }
@@ -240,18 +210,13 @@ suspend fun complexOperation(uow: MyUnitOfWork) {
 
 ## Implementations
 
-`persistence.kt` is intentionally implementation-agnostic.
+`persistence.kt` is designed to be implementation-agnostic.
 
-The core library defines the abstractions used by the domain and application layers,
-while persistence adapters provide the actual database or storage implementation.
-
-This allows the same application code to work with different persistence libraries/frameworks
-without coupling the domain model to a specific ORM or database library.
+The core library defines the API used by your application layers,
+while adapters provide the actual database or storage implementation.
 
 Currently supported implementations include:
 - **[Exposed](docs/Exposed.md)** - Database persistence for Kotlin/JVM using JetBrains Exposed.
-
-Additional implementations can be provided without modifying the core persistence API. 
 
 ---
 
