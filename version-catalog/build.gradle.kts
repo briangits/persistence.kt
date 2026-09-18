@@ -1,5 +1,8 @@
 plugins {
     `version-catalog`
+
+    // Publishing
+    id("io.github.briangits.persistence.conventions.publishing")
 }
 
 
@@ -15,4 +18,9 @@ catalog {
 
         library("exposed", group, "exposed").versionRef("persistence")
     }
+}
+
+library {
+    name = "version-catalog"
+    description = "A verison catalog for persistence.kt"
 }
