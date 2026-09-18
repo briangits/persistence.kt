@@ -11,15 +11,15 @@ class PublishPlugin : Plugin<Project> {
         with(target) {
             plugins.apply("com.vanniktech.maven.publish")
 
-            val artifact = project.extensions.create<ArtifactExtension>("artifact").apply {
+            val library = project.extensions.create<LibraryExtension>("library").apply {
                 name.convention(project.name)
                 description.convention("")
             }
 
             afterEvaluate {
                 val artifact = object {
-                    val name = artifact.name.get()
-                    val description = artifact.description.get()
+                    val name = library.name.get()
+                    val description = library.description.get()
                 }
 
                 project.extensions.configure<MavenPublishBaseExtension> {

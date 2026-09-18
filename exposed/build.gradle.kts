@@ -21,7 +21,7 @@ dependencies {
     testImplementation(kotlinx.coroutines.test)
 }
 
-artifact {
+library {
     name = "exposed"
     description = "Persistence abstraction implememntation using Exposed"
 }

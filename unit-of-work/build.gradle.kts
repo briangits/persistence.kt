@@ -52,7 +52,7 @@ kotlin {
     }
 }
 
-artifact {
+library {
     name = "uow"
     description = "Persistence Unit of Work"
 }

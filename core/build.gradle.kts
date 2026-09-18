@@ -52,7 +52,7 @@ kotlin {
     }
 }
 
-artifact {
+library {
     name = "core"
     description = "Persisitence abstraction with pluggable implementations for DDD"
 }
