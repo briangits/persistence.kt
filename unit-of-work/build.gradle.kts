@@ -54,5 +54,5 @@ kotlin {
 
 library {
     name = "uow"
-    description = "Persistence Unit of Work"
+    description = "Unit of Work API for persistence.kt"
 }

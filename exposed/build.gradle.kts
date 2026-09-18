@@ -23,5 +23,5 @@ dependencies {
 
 library {
     name = "exposed"
-    description = "Persistence abstraction implememntation using Exposed"
+    description = "Persistence API implememntation with Exposed for persistence.kt"
 }

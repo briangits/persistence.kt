@@ -54,5 +54,5 @@ kotlin {
 
 library {
     name = "core"
-    description = "Persisitence abstraction with pluggable implementations for DDD"
+    description = "Core peristence abstraction API for persistence.kt"
 }
