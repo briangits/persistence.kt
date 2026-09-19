@@ -39,7 +39,7 @@ class PublishPlugin : Plugin<Project> {
                                 it.license {
                                     it.name.set("The Apache License, Version 2.0")
                                     it.url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                                    it.distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                                    it.distribution.set("repo")
                                 }
                             }
 
@@ -52,9 +52,11 @@ class PublishPlugin : Plugin<Project> {
                             }
 
                             scm {
-                                it.url.set("https://github.com/briangits/persistence")
-                                it.connection.set("scm:git:git://github.com/briangits/persistence.git")
-                                it.developerConnection.set("scm:git:git://github.com/briangits/persistence.git")
+                                val url = "https://github.com/briangits/persistence"
+
+                                it.url.set(url)
+                                it.connection.set("scm:git:$url")
+                                it.developerConnection.set("scm:git:$url")
                             }
                         }
                     }
