@@ -9,8 +9,8 @@ dependencies {
     api(projects.core)
 
     // Exposed
-    implementation(exposed.core)
-    implementation(exposed.jdbc)
+    api(exposed.core)
+    api(exposed.jdbc)
 
     // Coroutines
     implementation(kotlinx.coroutines)
