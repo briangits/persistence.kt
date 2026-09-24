@@ -9,7 +9,7 @@ import io.github.briangits.persistence.transaction.Transaction
  * driver, establishing connections, and providing the transactional context required
  * for repository operations.
  */
-abstract class Persistence {
+abstract class Persistence : AutoCloseable {
     /**
      * Bootstraps the persistence layer.
      * 
@@ -17,14 +17,6 @@ abstract class Persistence {
      * connectivity, or executing schema migrations.
      */
     abstract suspend fun initialize()
-
-    /**
-     * Terminates all database connections and releases associated resources.
-     * 
-     * This method should be called when the application is shutting down to ensure 
-     * a clean disconnect from the database.
-     */
-    abstract suspend fun close()
 
     /**
      * Internal factory method to create a new [Transaction] instance.

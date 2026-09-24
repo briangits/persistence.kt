@@ -7,6 +7,7 @@ import io.github.briangits.persistence.exposed.transaction.TransactionControl
 import io.github.briangits.persistence.transaction.Transaction
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -29,6 +30,8 @@ internal class ExposedPersistence(
     val initialization = Mutex()
     private var initialized: Boolean = false
 
+    @Volatile private var isClosed: Boolean = false
+
     override suspend fun initialize() =
         withContext(dispatcher) {
             initialization.withLock {
@@ -39,15 +42,12 @@ internal class ExposedPersistence(
             }
         }
 
-    override suspend fun close() =
-        withContext(dispatcher) {
-            initialization.withLock {
-                if (!initialized) return@withContext
+    override fun close() {
+        if (isClosed) return
+        isClosed = true
 
-                TransactionManager.closeAndUnregister(database)
-                initialized = false
-            }
-        }
+        TransactionManager.closeAndUnregister(database)
+    }
 
     override suspend fun createTransaction(): Transaction {
         require(initialized) { "Persistence is not initialized" }
