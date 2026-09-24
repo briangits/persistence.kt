@@ -27,6 +27,10 @@ interface PersistenceBuilder {
     )
 }
 
+inline fun <reified T : Repository<*, *, *>> PersistenceBuilder.bind(
+    noinline implementation: RepositoryImplementation<T>
+) = bind(T::class, implementation)
+
 /**
  * Internal implementation of [PersistenceBuilder].
  *
