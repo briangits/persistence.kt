@@ -11,14 +11,6 @@ import io.github.briangits.persistence.transaction.Transaction
  */
 abstract class Persistence : AutoCloseable {
     /**
-     * Bootstraps the persistence layer.
-     * 
-     * This may involve establishing initial connection pools, verifying database 
-     * connectivity, or executing schema migrations.
-     */
-    abstract suspend fun initialize()
-
-    /**
      * Internal factory method to create a new [Transaction] instance.
      * 
      * @return A newly initialized transaction.

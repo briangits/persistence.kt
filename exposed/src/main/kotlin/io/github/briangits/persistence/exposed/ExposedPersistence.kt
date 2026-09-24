@@ -27,20 +27,8 @@ internal class ExposedPersistence(
     private val registry: RepositoryRegistry,
     private val dispatcher: CoroutineDispatcher
 ) : Persistence() {
-    val initialization = Mutex()
-    private var initialized: Boolean = false
 
     @Volatile private var isClosed: Boolean = false
-
-    override suspend fun initialize() =
-        withContext(dispatcher) {
-            initialization.withLock {
-                if (initialized) return@withContext
-
-                suspendTransaction (database) { exec("SELECT 1") }
-                initialized = true
-            }
-        }
 
     override fun close() {
         if (isClosed) return
@@ -50,13 +38,14 @@ internal class ExposedPersistence(
     }
 
     override suspend fun createTransaction(): Transaction {
-        require(initialized) { "Persistence is not initialized" }
+        require(!isClosed) { "Attempt to create a transaction after closing persistence" }
 
         val transaction = database.transactionManager.newTransaction()
         val control = TransactionControl(transaction, dispatcher)
 
         return ExposedTransaction(control, registry)
     }
+
 }
 
 /**
