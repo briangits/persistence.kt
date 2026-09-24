@@ -15,7 +15,7 @@ abstract class Persistence : AutoCloseable {
      * 
      * @return A newly initialized transaction.
      */
-    abstract suspend fun createTransaction(): Transaction
+    abstract fun createTransaction(): Transaction
 
     /**
      * Orchestrates a unit of work within a managed transactional scope.

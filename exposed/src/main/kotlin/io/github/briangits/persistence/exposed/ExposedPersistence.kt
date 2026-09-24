@@ -37,7 +37,7 @@ internal class ExposedPersistence(
         TransactionManager.closeAndUnregister(database)
     }
 
-    override suspend fun createTransaction(): Transaction {
+    override fun createTransaction(): Transaction {
         require(!isClosed) { "Attempt to create a transaction after closing persistence" }
 
         val transaction = database.transactionManager.newTransaction()
