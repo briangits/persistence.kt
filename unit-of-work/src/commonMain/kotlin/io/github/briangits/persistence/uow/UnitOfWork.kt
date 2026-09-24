@@ -82,10 +82,11 @@ abstract class UnitOfWork<T : UnitOfWork<T>>(
      * Executes a given block of code and commits the transaction upon successful completion.
      * Rolls back the transaction if the block fails.
      *
+     * @param R The return type of the block.
      * @param block The block to execute.
+     * @return The result of the block.
      */
-    suspend fun run(block: suspend T.() -> Unit) {
-        execute(block)
-        commit()
-    }
+    suspend fun <R> run(block: suspend T.() -> R): R =
+        execute(block).also { commit() }
+
 }
