@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "io.github.briangits.persistence"
-version = "0.2.1"
+version = "0.2.2"
 
 allprojects {
     group = rootProject.group
