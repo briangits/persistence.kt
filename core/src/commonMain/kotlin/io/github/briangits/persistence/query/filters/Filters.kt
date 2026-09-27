@@ -1,5 +1,8 @@
 package io.github.briangits.persistence.query
 
+import io.github.briangits.persistence.properties.Properties
+import io.github.briangits.persistence.properties.PropertyPath
+import io.github.briangits.persistence.query.filters.FiltersImpl
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Between
 import io.github.briangits.persistence.query.filters.operators.Contains
@@ -10,7 +13,6 @@ import io.github.briangits.persistence.query.filters.operators.Gte
 import io.github.briangits.persistence.query.filters.operators.In
 import io.github.briangits.persistence.query.filters.operators.IsNotNull
 import io.github.briangits.persistence.query.filters.operators.IsNull
-import io.github.briangits.persistence.query.filters.operators.Like
 import io.github.briangits.persistence.query.filters.operators.Lt
 import io.github.briangits.persistence.query.filters.operators.Lte
 import io.github.briangits.persistence.query.filters.operators.Matches
@@ -20,146 +22,91 @@ import io.github.briangits.persistence.query.filters.operators.NotIn
 import io.github.briangits.persistence.query.filters.operators.OneOf
 import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
-import kotlin.reflect.KProperty1
 
 @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 private typealias Exact = kotlin.internal.Exact
 
-/**
- * Base class for building type-safe queries using a Kotlin DSL.
- *
- * This class provides a set of infix functions and helper methods to construct
- * complex query filters by referencing entity properties and applying operators.
- *
- * @param T The entity type being queried.
- * @param TInstance The specific implementation type of the filters (usually a subclass of [Filters]).
- * @param factory A factory function to create a new instance of [TInstance] for nested groupings.
- */
-open class Filters<T : Any, TInstance: Filters<T, TInstance>>(
-    private val factory: () -> TInstance
-) {
-    private val operators = mutableListOf<Operator>()
+interface IFilters<T : Any, TSelf>
+    where TSelf : IFilters<T, TSelf>, TSelf : Properties<T> {
 
-    /**
-     * Manually adds a custom [Operator] to the filter set.
-     *
-     * @param operator The operator to add.
-     */
-    fun add(operator: Operator) {
-        operators.add(operator)
-    }
+    val factory: () -> TSelf
 
-    /**
-     * Filters for entities where the property is equal to the specified [value].
-     * If the [value] is null, this defaults to an [isNull] check.
-     */
-    infix fun <V> KProperty1<T, @Exact V>.eq(value: V) =
-        if (value == null) isNull() else add(Eq(this, value))
+    val operators: List<Operator>
 
-    /**
-     * Filters for entities where the property is not equal to the specified [value].
-     * If the [value] is null, this defaults to an [isNotNull] check.
-     */
-    infix fun <V> KProperty1<T, @Exact V>.neq(value: V) =
-        if (value == null) isNotNull() else add(NEq(this, value))
+    fun add(operator: Operator)
 
-    /**
-     * Filters for entities where the property is strictly greater than [value].
-     */
-    infix fun <V : Comparable<V>> KProperty1<T, V?>.gt(value: V) = add(Gt(this, value))
+    // Equality
+    infix fun <V> PropertyPath<@Exact V>.eq(value: V) =
+        if (value == null) isNull()
+        else add(operator = Eq(path = this, value))
 
-    /**
-     * Filters for entities where the property is greater than or equal to [value].
-     */
-    infix fun <V : Comparable<V>> KProperty1<T, V?>.gte(value: V) = add(Gte(this, value))
+    infix fun <V> PropertyPath<@Exact V>.neq(value: V) =
+        if (value == null) isNotNull()
+        else add(operator = NEq(path = this, value))
 
-    /**
-     * Filters for entities where the property is strictly less than [value].
-     */
-    infix fun <V : Comparable<V>> KProperty1<T, V?>.lt(value: V) = add(Lt(this, value))
+    // Comparison
+    infix fun <V : Comparable<V>> PropertyPath<V?>.gt(value: V) =
+        add(operator = Gt(path = this, value))
 
-    /**
-     * Filters for entities where the property is less than or equal to [value].
-     */
-    infix fun <V : Comparable<V>> KProperty1<T, V?>.lte(value: V) = add(Lte(this, value))
+    infix fun <V : Comparable<V>> PropertyPath<V?>.gte(value: V) =
+        add(operator = Gte(path = this, value))
 
-    /**
-     * Filters for entities where the property value is inclusively between [start] and [end].
-     */
-    fun <V : Comparable<V>> KProperty1<T, V?>.between(start: V, end: V) =
-        add(Between(this, start, end))
+    infix fun <V : Comparable<V>> PropertyPath<V?>.lt(value: V) =
+        add(operator = Lt(path = this, value))
 
-    /**
-     * Filters for entities where the property matches the SQL-style pattern [value].
-     */
-    infix fun KProperty1<T, String?>.like(value: String) = add(Like(this, value))
+    infix fun <V : Comparable<V>> PropertyPath<V?>.lte(value: V) =
+        add(operator = Lte(path = this, value))
 
-    /**
-     * Filters for entities where the property contains the specified [value] substring.
-     */
-    infix fun KProperty1<T, String?>.contains(value: String) = add(Contains(this, value))
+    fun <V : Comparable<V>> PropertyPath<V?>.between(start: V, end: V) =
+        add(operator = Between(path = this, start, end))
 
-    /**
-     * Filters for entities where the property begins with the specified [value] prefix.
-     */
-    infix fun KProperty1<T, String?>.startsWith(value: String) = add(StartsWith(this, value))
+    // Strings
+    infix fun PropertyPath<String?>.contains(value: String) =
+        add(operator = Contains(path = this, value))
 
-    /**
-     * Filters for entities where the property ends with the specified [value] suffix.
-     */
-    infix fun KProperty1<T, String?>.endsWith(value: String) = add(EndsWith(this, value))
+    infix fun PropertyPath<String?>.startsWith(value: String) =
+        add(operator = StartsWith(path = this, value))
 
-    /**
-     * Filters for entities where the property matches the regular expression pattern [value].
-     */
-    infix fun KProperty1<T, String?>.matches(value: String) = add(Matches(this, value))
+    infix fun PropertyPath<String?>.endsWith(value: String) =
+        add(operator = EndsWith(path = this, value))
 
-    /**
-     * Filters for entities where the property matches the provided regular expression.
-     */
-    infix fun KProperty1<T, String?>.matches(value: Regex) = add(Matches(this, value.pattern))
+    infix fun PropertyPath<String?>.matches(value: String) =
+        add(operator = Matches(path = this, value))
 
-    /**
-     * Filters for entities where the property value is contained within the provided [values] set.
-     */
-    infix fun <V> KProperty1<T, V?>.`in`(values: Iterable<V>) = add(In(this, values))
+    infix fun PropertyPath<String?>.matches(value: Regex) =
+        add(operator = Matches(path = this, value.pattern))
 
-    /**
-     * Filters for entities where the property value is NOT contained within
-     * the provided [value] set.
-     */
-    infix fun <V> KProperty1<T, V?>.notIn(value: Iterable<V>) = add(NotIn(this, value))
+    // Arrays
+    infix fun <V> PropertyPath<V?>.`in`(values: Iterable<V>) =
+        add(operator = In(path = this, values))
 
-    /**
-     * Filters for entities where the property is null.
-     */
-    fun <V> KProperty1<T, V?>.isNull() = add(IsNull(this))
+    infix fun <V> PropertyPath<V?>.notIn(value: Iterable<V>) =
+        add(operator = NotIn(path = this, value))
 
-    /**
-     * Filters for entities where the property is not null.
-     */
-    fun <V> KProperty1<T, V?>.isNotNull() = add(IsNotNull(this))
+    // Null
+    fun <V> PropertyPath<V?>.isNull() =
+        add(operator = IsNull(path = this))
 
-    /**
-     * Groups nested filters with a logical AND.
-     */
-    fun allOf(builder: TInstance.() -> Unit) =
-        add(AllOf<T>(factory().apply(builder).operators))
+    fun <V> PropertyPath<V?>.isNotNull() =
+        add(operator = IsNotNull(path = this))
 
-    /**
-     * Groups nested filters with a logical OR.
-     */
-    fun oneOf(builder: TInstance.() -> Unit) =
-        add(OneOf<T>(factory().apply(builder).operators))
+    // Logical
+    fun allOf(block: TSelf.() -> Unit) =
+        add(operator = AllOf(operators = factory().apply(block).operators))
 
-    /**
-     * Inverts the result of the nested filters.
-     */
-    fun not(builder: TInstance.() -> Unit) =
-        add(Not<T>(factory().apply(builder).operators))
+    fun oneOf(block: TSelf.() -> Unit) =
+        add(operator = OneOf(operators = factory().apply(block).operators))
 
-    /**
-     * Finalizes the filter construction and returns the root operator.
-     */
-    fun build(): AllOf<T> = AllOf(operators)
+    fun not(block: TSelf.() -> Unit) =
+        add(operator = Not(operators = factory().apply(block).operators))
+
+    fun build(): AllOf
+
 }
+
+interface Filters<T : Any, TSelf> : IFilters<T, TSelf>, Properties<T>
+        where TSelf : Filters<T, TSelf>
+
+fun <T : Any, TSelf : Filters<T, TSelf>> Filters(
+    factory: () -> TSelf
+): Filters<T, TSelf> = FiltersImpl(factory)

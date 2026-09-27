@@ -1,33 +1,15 @@
 package io.github.briangits.persistence.query.filters.operators
 
-import kotlin.reflect.KProperty1
+import io.github.briangits.persistence.properties.PropertyPath
 
-/**
- * Represents equality-based filter operations.
- *
- * @param T The entity class containing the property.
- * @param V The property type.
- */
-sealed interface EqualityOperator<T : Any, V> : ValueOperator<T, V>
+sealed interface EqualityOperator<out T> : ValueOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is exactly equal to [value].
- *
- * @param T The entity class containing the property.
- * @param V The property type.
- */
-data class Eq<T : Any, V>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : EqualityOperator<T, V>
+data class Eq<out T>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : EqualityOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is not equal to [value].
- *
- * @param T The entity class containing the property.
- * @param V The property type.
- */
-data class NEq<T : Any, V>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : EqualityOperator<T, V>
+data class NEq<out T>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : EqualityOperator<T>

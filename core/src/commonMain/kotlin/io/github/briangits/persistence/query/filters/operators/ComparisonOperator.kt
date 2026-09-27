@@ -1,80 +1,35 @@
 package io.github.briangits.persistence.query.filters.operators
 
-import kotlin.reflect.KProperty1
+import io.github.briangits.persistence.properties.PropertyPath
 
-/**
- * Represents comparison-based filter operations for comparable types.
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-sealed interface ComparisonOperator<T : Any, V : Comparable<V>> : FieldOperator<T, V>
+sealed interface ComparisonOperator<T : Comparable<T>> : FieldOperator<T>
 
-/**
- * Represents a comparison operation targeting a single [value] expression.
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-sealed interface ValueComparisonOperator<T : Any, V : Comparable<V>> :
-    ComparisonOperator<T, V>,
-    ValueOperator<T, V>
+sealed interface ValueComparisonOperator<T : Comparable<T>> :
+    ComparisonOperator<T>,
+    ValueOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is strictly greater than [value].
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-data class Gt<T : Any, V : Comparable<V>>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : ValueComparisonOperator<T, V>
+data class Gt<T : Comparable<T>>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : ValueComparisonOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is greater than or equal to [value].
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-data class Gte<T : Any, V : Comparable<V>>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : ValueComparisonOperator<T, V>
+data class Gte<T : Comparable<T>>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : ValueComparisonOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is strictly less than [value].
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-data class Lt<T : Any, V : Comparable<V>>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : ValueComparisonOperator<T, V>
+data class Lt<T : Comparable<T>>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : ValueComparisonOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] is less than or equal to [value].
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- */
-data class Lte<T : Any, V : Comparable<V>>(
-    override val prop: KProperty1<T, V?>,
-    override val value: V
-) : ValueComparisonOperator<T, V>
+data class Lte<T : Comparable<T>>(
+    override val path: PropertyPath<T?>,
+    override val value: T
+) : ValueComparisonOperator<T>
 
-/**
- * Filters for entities where the specified property [prop] falls
- * inclusively within the range defined by [start] and [end].
- *
- * @param T The entity class containing the property.
- * @param V The comparable property type.
- * @param start The inclusive lower bound of the range.
- * @param end The inclusive upper bound of the range.
- */
-data class Between<T : Any, V : Comparable<V>>(
-    override val prop: KProperty1<T, V?>,
-    val start: V,
-    val end: V
-) : ComparisonOperator<T, V>
+data class Between<T : Comparable<T>>(
+    override val path: PropertyPath<T?>,
+    val start: T,
+    val end: T
+) : ComparisonOperator<T>
