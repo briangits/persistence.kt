@@ -1,9 +1,9 @@
 
 import UserProperties.name
-import io.github.briangits.persistence.properties.Properties
-import io.github.briangits.persistence.properties.directPath
-import io.github.briangits.persistence.properties.explode
-import io.github.briangits.persistence.properties.nested
+import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.persistence.query.properties.directPath
+import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.persistence.query.properties.nested
 import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.filters.FilterBuilder
 import io.github.briangits.persistence.query.filters.operators.AllOf

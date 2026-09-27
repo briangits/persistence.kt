@@ -1,6 +1,6 @@
 package io.github.briangits.persistence.query.filters
 
-import io.github.briangits.persistence.properties.Properties
+import io.github.briangits.persistence.query.properties.Properties
 import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Operator

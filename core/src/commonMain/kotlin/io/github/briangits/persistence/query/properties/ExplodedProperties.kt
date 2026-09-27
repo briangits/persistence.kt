@@ -1,4 +1,4 @@
-package io.github.briangits.persistence.properties
+package io.github.briangits.persistence.query.properties
 
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1

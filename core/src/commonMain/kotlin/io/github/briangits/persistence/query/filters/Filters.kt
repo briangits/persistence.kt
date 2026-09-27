@@ -1,7 +1,5 @@
 package io.github.briangits.persistence.query
 
-import io.github.briangits.persistence.properties.Properties
-import io.github.briangits.persistence.properties.PropertyPath
 import io.github.briangits.persistence.query.filters.FiltersImpl
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Between
@@ -22,6 +20,8 @@ import io.github.briangits.persistence.query.filters.operators.NotIn
 import io.github.briangits.persistence.query.filters.operators.OneOf
 import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
+import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.persistence.query.properties.PropertyPath
 
 @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 private typealias Exact = kotlin.internal.Exact

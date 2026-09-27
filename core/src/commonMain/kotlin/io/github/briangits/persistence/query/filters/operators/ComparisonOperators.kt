@@ -1,6 +1,6 @@
 package io.github.briangits.persistence.query.filters.operators
 
-import io.github.briangits.persistence.properties.PropertyPath
+import io.github.briangits.persistence.query.properties.PropertyPath
 
 sealed interface ComparisonOperator<T : Comparable<T>> : FieldOperator<T>
 
