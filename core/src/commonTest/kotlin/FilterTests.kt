@@ -67,7 +67,7 @@ class UserFilters :
 
 }
 
-class FiltersTest {
+class FilterTests {
     @Test
     fun `equality operators`() {
         val filters = createFilters {
