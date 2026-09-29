@@ -9,14 +9,10 @@ import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.get
 import io.github.briangits.persistence.repository.save
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -32,88 +28,9 @@ class ExposedPersistenceTest {
     )
 
     @Test
-    fun `initializing persistence`() = runTest {
-        val database = createDB()
-        val persistence = persistence(database)
-
-        assertFalse(persistence.initialization.isLocked)
-
-        persistence.initialize()
-
-        persistence.transaction {
-            get<UserRepository>().save {
-                create { NewUser("Jane Doe", "janedoe@example.com", 25) }
-            }
-        }
-
-        persistence.close()
-    }
-
-    @Test
-    fun `initialize() is idempotent`() = runTest {
-        val database = createDB()
-        val persistence = persistence(database)
-
-        persistence.initialize()
-        persistence.initialize()
-
-        persistence.transaction {
-            get<UserRepository>().save {
-                create { NewUser("Jane Doe", "janedoe@example.com", 25) }
-            }
-        }
-
-        persistence.close()
-    }
-
-    @Test
-    fun `initializing persistence concurrently`() = runTest {
-        val database = createDB()
-        val persistence = persistence(database)
-
-        coroutineScope {
-            (1..10)
-                .map {
-                    async {
-                        persistence.initialize()
-                    }
-                }
-                .awaitAll()
-        }
-
-        persistence.transaction {
-            get<UserRepository>().save {
-                create { NewUser("Jane Doe", "janedoe@example.com", 25) }
-            }
-        }
-
-        persistence.close()
-    }
-
-    @Test
-    fun `closing persistence before initialize is a no-op`() = runTest {
-        val database = createDB()
-        val persistence = persistence(database)
-
-        persistence.close()
-
-        persistence.initialize()
-
-        persistence.transaction {
-            get<UserRepository>().save {
-                create { NewUser("Jane Doe", "janedoe@example.com", 25) }
-            }
-        }
-
-        persistence.close()
-    }
-
-    @Test
     fun `close() is idempotent`() = runTest {
         val database = createDB()
         val persistence = persistence(database)
-
-        persistence.initialize()
 
         persistence.close()
         persistence.close()
@@ -122,7 +39,7 @@ class ExposedPersistenceTest {
     @Test
     fun `creating transactions`() = runTest {
         val database = createDB()
-        val persistence = persistence(database).also { it.initialize() }
+        val persistence = persistence(database)
 
         val transaction = persistence.createTransaction()
 
@@ -134,7 +51,7 @@ class ExposedPersistenceTest {
     @Test
     fun `transaction() auto-commits transactions`() = runTest {
         val database = createDB()
-        val persistence = persistence(database).also { it.initialize() }
+        val persistence = persistence(database)
 
         val user = persistence.transaction {
             val repository = get<UserRepository>()
@@ -167,8 +84,6 @@ class ExposedPersistenceTest {
     fun `transaction() rolls back transactions on uncaught exceptions`() = runTest {
         val database = createDB()
         val persistence = persistence(database)
-
-        persistence.initialize()
 
         var user: User? = null
         runCatching {
