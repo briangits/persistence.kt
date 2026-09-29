@@ -1,24 +1,39 @@
 plugins {
-    alias(kt.plugins.jvm)
+    alias(kt.plugins.multiplatform)
 
     // Publishing
     id("io.github.briangits.persistence.conventions.publishing")
 }
 
-dependencies {
-    api(projects.core)
+kotlin {
+    jvm()
 
-    // Exposed
-    api(exposed.core)
-    api(exposed.jdbc)
+    sourceSets {
+        commonMain.dependencies {
+            api(projects.core)
 
-    // Coroutines
-    implementation(kotlinx.coroutines)
+            // Pedestal
+            implementation(pedestal.weak)
 
-    // Tests
-    testImplementation(kt.test)
-    testImplementation(exposed.h2)
-    testImplementation(kotlinx.coroutines.test)
+            // Coroutines
+            implementation(kotlinx.coroutines)
+        }
+
+        commonTest.dependencies {
+            implementation(kt.test)
+            implementation(kotlinx.coroutines.test)
+        }
+
+        jvmMain.dependencies {
+            // Exposed
+            api(exposed.core)
+            api(exposed.jdbc)
+        }
+
+        jvmTest.dependencies {
+            implementation(exposed.h2)
+        }
+    }
 }
 
 library {
