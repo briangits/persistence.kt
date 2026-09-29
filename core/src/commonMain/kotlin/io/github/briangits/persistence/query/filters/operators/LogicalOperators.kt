@@ -1,19 +1,15 @@
 package io.github.briangits.persistence.query.filters.operators
 
-sealed interface LogicalOperator : Operator {
-
-    val operators: List<Operator>
-
-}
+sealed interface LogicalOperator : Operator
 
 data class AllOf(
-    override val operators: List<Operator>
+    val operators: List<Operator>
 ) : LogicalOperator
 
 data class OneOf(
-    override val operators: List<Operator>
+    val operators: List<Operator>
 ) : LogicalOperator
 
 data class Not(
-    override val operators: List<Operator>
+    val operator: Operator
 ) : LogicalOperator
