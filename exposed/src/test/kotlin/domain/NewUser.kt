@@ -1,7 +1,7 @@
 package domain
 
 data class NewUser(
-    val name: String,
+    val name: PersonName,
     val email: String?,
     val age: Int
 )

@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.save
@@ -18,7 +19,7 @@ class SaveTests {
         val user = repository.save {
             create {
                 NewUser(
-                    name = "Jane Doe",
+                    name = PersonName("Jane", "Doe"),
                     email = "janedoe@example.com",
                     age = 20
                 )
@@ -40,7 +41,7 @@ class SaveTests {
             val user = repository.save {
                 create {
                     NewUser(
-                        name = "Jane Doe",
+                        name = PersonName("Jane", "Doe"),
                         email = "janedoe@example.com",
                         age = 20
                     )
@@ -48,7 +49,7 @@ class SaveTests {
             }
 
             val updated = user.copy(
-                name = "John Doe",
+                name = PersonName("Jane", "Doe"),
                 email = "johndoe@example.com",
                 age = 25
             )

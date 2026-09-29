@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.save
@@ -18,7 +19,15 @@ class ExistsTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user = repository.save { create { NewUser("User1", null, 20) } }
+            val user = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
 
             assertTrue(
                 repository.exists {

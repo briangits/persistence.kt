@@ -1,5 +1,6 @@
 
 import domain.NewUser
+import domain.PersonName
 import domain.User
 import domain.UserRepository
 import infrustructure.ExposedUserRepository
@@ -139,7 +140,13 @@ class ExposedPersistenceTest {
             val repository = get<UserRepository>()
 
             return@transaction repository.save {
-                create { NewUser("Jane Doe", "janedoe@gmail.com", 25) }
+                create {
+                    NewUser(
+                        name = PersonName("Jane", "Doe"),
+                        email = "janedoe@gmail.com",
+                        age = 25
+                    )
+                }
             }
         }
 
@@ -167,7 +174,15 @@ class ExposedPersistenceTest {
         runCatching {
             persistence.transaction {
                 val repository = get<UserRepository>()
-                user = repository.save { create { NewUser("Jane Doe", "janedoe@example.com", 25) } }
+                user = repository.save {
+                    create {
+                        NewUser(
+                            name = PersonName("Jane", "Doe"),
+                            email = "janedoe@example.com",
+                            age = 25
+                        )
+                    }
+                }
 
                 throw Exception("Transaction rollback test")
             }

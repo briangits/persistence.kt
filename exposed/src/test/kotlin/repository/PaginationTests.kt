@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.findAll
@@ -22,7 +23,7 @@ class PaginationTests {
                 repository.save {
                     create {
                         NewUser(
-                            name = "User$it",
+                            name = PersonName("User", "$it"),
                             email = "user$it@example.com",
                             age = 20 + it
                         )
@@ -49,7 +50,7 @@ class PaginationTests {
                 repository.save {
                     create {
                         NewUser(
-                            name = "User$it",
+                            name = PersonName("User", "$it"),
                             email = null,
                             age = 20 + it
                         )
@@ -76,7 +77,7 @@ class PaginationTests {
                 repository.save {
                     create {
                         NewUser(
-                            name = "User$it",
+                            name = PersonName("User", "$it"),
                             email = null,
                             age = 20 + it
                         )
@@ -103,7 +104,7 @@ class PaginationTests {
                 repository.save {
                     create {
                         NewUser(
-                            name = "User$it",
+                            name = PersonName("User", "$it"),
                             email = null,
                             age = 20 + it
                         )

@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.save
@@ -19,8 +20,16 @@ class FindTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user = repository.save { create { NewUser("User1", null, 20) } }
-            
+            val user = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+
             val found = repository.find { id eq user.id }
 
             assertEquals(user, found)
@@ -33,9 +42,33 @@ class FindTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user1 = repository.save { create { NewUser("User1", null, 20) } }
-            val user2 = repository.save { create { NewUser("User2", null, 20) } }
-            val user3 = repository.save { create { NewUser("User3", null, 20) } }
+            val user1 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+            val user2 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "2"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+            val user3 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "3"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
 
             val found = repository.find { age eq 20 }
 
@@ -61,9 +94,37 @@ class FindTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user1 = repository.save { create { NewUser("User1", null, 20) } }
-            val user2 = repository.save { create { NewUser("User2", null, 20) } }
-            val user3 = repository.save { create { NewUser("User3", null, 20) } }
+
+
+            val user1 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+
+            val user2 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "2"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+
+            val user3 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "3"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
 
             val found = repository.findAll { age eq 20 }
 

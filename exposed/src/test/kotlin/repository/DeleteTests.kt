@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.save
@@ -17,7 +18,15 @@ class DeleteTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user = repository.save { create { NewUser("User1", null, 20) } }
+            val user = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("Jane", "Doe"),
+                        email = "janedoe@example.com",
+                        age = 20
+                    )
+                }
+            }
 
             repository.delete(user)
 
@@ -35,8 +44,24 @@ class DeleteTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val user1 = repository.save { create { NewUser("User1", null, 20) } }
-            val user2 = repository.save { create { NewUser("User2", null, 25) } }
+            val user1 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
+            val user2 = repository.save {
+                create {
+                    NewUser(
+                        name = PersonName("User", "1"),
+                        email = null,
+                        age = 20
+                    )
+                }
+            }
 
             repository.delete(user1)
 

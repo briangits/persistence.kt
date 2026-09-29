@@ -46,14 +46,14 @@ class FilterCompilerTests {
     @Test
     fun `equality operators`() = runTestInTransaction {
         val filters = createFilters {
-            name eq "John"
+            name.first eq "John"
             age neq 30
         }
 
         val op = filters compile relations
 
         val expected = Op.TRUE
-            .and(Users.name eq "John")
+            .and(Users.firstName eq "John")
             .and(Users.age neq 30)
 
         assertEquals(expected.toString(), op.toString())
@@ -84,11 +84,12 @@ class FilterCompilerTests {
     @Test
     fun `string operators`() = runTestInTransaction {
         val filters = createFilters {
-            name like "Jo%"
-            name contains "John"
-            name startsWith "John"
-            name endsWith "Doe"
-            name matches "John.*"
+            explode(name) {
+                first contains "John"
+                first startsWith "John"
+                first endsWith "Doe"
+                first matches "John.*"
+            }
         }
 
         val op = filters compile relations
@@ -96,15 +97,15 @@ class FilterCompilerTests {
         val expected = Op.TRUE
             .and(Users.name like "Jo%")
             .and(
-                Users.name like LikePattern.ofLiteral("").plus("%")
+                Users.firstName like LikePattern.ofLiteral("").plus("%")
                     .plus(LikePattern.ofLiteral("John"))
                     .plus("%")
-            ).and(Users.name like LikePattern.ofLiteral("John") + "%")
+            ).and(Users.firstName like LikePattern.ofLiteral("John") + "%")
             .and(
-                Users.name like LikePattern.ofLiteral("")
+                Users.firstName like LikePattern.ofLiteral("")
                     .plus("%")
                     .plus(LikePattern.ofLiteral("Doe"))
-            ).and(Users.name regexp "John.*")
+            ).and(Users.firstName regexp "John.*")
 
         assertEquals(expected.toString(), op.toString())
     }
@@ -149,11 +150,11 @@ class FilterCompilerTests {
                 age lt 30
             }
             oneOf {
-                name eq "A"
-                name eq "B"
+                name.first eq "A"
+                name.last eq "B"
             }
             not {
-                name eq "C"
+                name.first eq "C"
             }
         }
 
@@ -166,12 +167,12 @@ class FilterCompilerTests {
                     .and(Users.age less 30)
             ).and(
                 Op.FALSE
-                    .or(Users.name eq "A")
-                    .or (Users.name eq "B")
+                    .or(Users.firstName eq "A")
+                    .or (Users.lastName eq "B")
             ) and(
                 not(
                     Op.TRUE
-                        .and(Users.name eq "C")
+                        .and(Users.firstName eq "C")
                 )
             )
 

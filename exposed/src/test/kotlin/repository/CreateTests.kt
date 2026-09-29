@@ -3,6 +3,7 @@ package repository
 import closeDB
 import createDB
 import domain.NewUser
+import domain.PersonName
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.repository.create
 import org.junit.Test
@@ -16,13 +17,13 @@ class CreateTests {
 
         val user = repository.create {
             NewUser(
-                name = "Jane Doe",
+                name = PersonName("Jane", "Doe"),
                 email = "janedoe@example.com",
                 age = 20
             )
         }
 
-        assertEquals("Jane Doe", user.name)
+        assertEquals(PersonName("Jane", "Doe"), user.name)
         assertEquals("janedoe@example.com", user.email)
         assertEquals(20, user.age)
 

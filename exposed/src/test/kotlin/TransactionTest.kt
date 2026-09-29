@@ -1,4 +1,5 @@
 import domain.NewUser
+import domain.PersonName
 import domain.UserRepository
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.exposed.transaction.ExposedTransaction
@@ -26,7 +27,15 @@ class TransactionTest {
         val transaction = createTransaction(db)
 
         val repository = transaction.get<UserRepository>()
-        val user = repository.save { create { NewUser("Jane Doe", "janedoe@example.com", 25) } }
+        val user = repository.save {
+            create {
+                NewUser(
+                    name = PersonName("Jane", "Doe"),
+                    email = "janedoe@example.com",
+                    age = 25
+                )
+            }
+        }
 
         transaction.commit()
 
@@ -45,7 +54,15 @@ class TransactionTest {
         val transaction = createTransaction(db)
 
         val repository = transaction.get<UserRepository>()
-        val user = repository.save { create { NewUser("Jane Doe", "janedoe@example.com", 25) } }
+        val user = repository.save {
+            create {
+                NewUser(
+                    name = PersonName("Jane", "Doe"),
+                    email = "janedoe@example.com",
+                    age = 25
+                )
+            }
+        }
 
         transaction.rollback()
 
