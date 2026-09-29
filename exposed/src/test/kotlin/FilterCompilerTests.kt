@@ -1,6 +1,6 @@
 
-import domain.User
 import domain.UserFilters
+import domain.UserProperties.name
 import domain.createFilters
 import infrustructure.UserEntityOperator
 import infrustructure.Users
@@ -31,12 +31,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class FilterCompilerTests {
-    val relations = setOf(
-        PropertyColumRelation(User::id, Users.id),
-        PropertyColumRelation(User::name, Users.name),
-        PropertyColumRelation(User::email, Users.email),
-        PropertyColumRelation(User::age, Users.age)
-    )
+    val relations = UserEntityOperator.relations
 
     val db = Database.connect(
         url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;",

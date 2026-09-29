@@ -21,7 +21,7 @@ interface ExposedRepository<
     TFilters : Filters<T, TFilters>
 > : IRepository<T, TCreate, TFilters> {
     val table: TTable
-    val operator: EntityOperator<TTable, T>
+    val operator: EntityOperator<T>
 
     val transaction: TransactionControl
 
@@ -48,14 +48,14 @@ interface ExposedRepository<
                 .where { block.compile() }
                 .limit(1)
                 .singleOrNull()
-                ?.let { operator.fromDB(table, it) }
+                ?.let { operator.fromDB(it) }
         }
 
     override suspend fun findAll(block: FilterBuilder<TFilters>): List<T> =
         transaction.execute {
             table.selectAll()
                 .where { block.compile() }
-                .map { operator.fromDB(table, it) }
+                .map { operator.fromDB(it) }
         }
 
     override suspend fun findAll(
@@ -74,7 +74,7 @@ interface ExposedRepository<
 
             val limitedQuery = if (limit != null) query.limit(limit) else query
 
-            val items = limitedQuery.map { operator.fromDB(table, it) }
+            val items = limitedQuery.map { operator.fromDB(it) }
             val total = when {
                 limit == null -> items.size.toLong()
                 items.size < limit && items.isNotEmpty() -> offset + items.size.toLong()
