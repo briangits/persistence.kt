@@ -1,13 +1,13 @@
 package io.github.briangits.persistence.exposed.repository
 
-import io.github.briangits.persistence.exposed.filters.compile
+import io.github.briangits.persistence.exposed.query.filters.compile
+import io.github.briangits.persistence.exposed.relations.set
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
-import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
+import io.github.briangits.persistence.query.filters.Filters
 import io.github.briangits.persistence.query.pagination.Paginated
 import io.github.briangits.persistence.repository.IRepository
-import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -25,9 +25,8 @@ interface ExposedRepository<
 
     val transaction: TransactionControl
 
-    private fun TFilters.compile() = this compile operator.relations
-    private fun FilterBuilder<TFilters>.compile(): Op<Boolean> =
-        filter().apply(this).compile()
+    private fun TFilters.compile() = this.compile(operator.relations, filters)
+    private fun FilterBuilder<TFilters>.compile() = filters().apply(this).compile()
 
     override suspend fun count(block: FilterBuilder<TFilters>): Long =
         transaction.execute {
@@ -101,7 +100,7 @@ interface ExposedRepository<
 
     override suspend fun delete(entity: T) {
         transaction.execute {
-            val filter = filter().apply { id(this, entity) }
+            val filter = filters().apply { id(this, entity) }
             table.deleteWhere(limit = 1) { filter.compile() }
         }
     }

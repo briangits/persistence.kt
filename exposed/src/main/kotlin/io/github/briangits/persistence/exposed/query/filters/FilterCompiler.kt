@@ -1,7 +1,8 @@
-package io.github.briangits.persistence.exposed.filters
+package io.github.briangits.persistence.exposed.query.filters
 
-import io.github.briangits.persistence.exposed.relations.PropertyColumRelations
-import io.github.briangits.persistence.query.Filters
+import io.github.briangits.persistence.exposed.relations.PropertyColumnRelations
+import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.query.filters.build
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.ArrayOperator
 import io.github.briangits.persistence.query.filters.operators.Between
@@ -11,13 +12,12 @@ import io.github.briangits.persistence.query.filters.operators.EndsWith
 import io.github.briangits.persistence.query.filters.operators.Eq
 import io.github.briangits.persistence.query.filters.operators.EqualityOperator
 import io.github.briangits.persistence.query.filters.operators.FieldOperator
-import io.github.briangits.persistence.query.filters.operators.GroupOperator
 import io.github.briangits.persistence.query.filters.operators.Gt
 import io.github.briangits.persistence.query.filters.operators.Gte
 import io.github.briangits.persistence.query.filters.operators.In
 import io.github.briangits.persistence.query.filters.operators.IsNotNull
 import io.github.briangits.persistence.query.filters.operators.IsNull
-import io.github.briangits.persistence.query.filters.operators.Like
+import io.github.briangits.persistence.query.filters.operators.LogicalOperator
 import io.github.briangits.persistence.query.filters.operators.Lt
 import io.github.briangits.persistence.query.filters.operators.Lte
 import io.github.briangits.persistence.query.filters.operators.Matches
@@ -50,9 +50,8 @@ import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.regexp
 
-private fun <T : Any> StringOperator<T>.compile(column: Column<String?>): Op<Boolean> =
+private fun StringOperator.compile(column: Column<String?>): Op<Boolean> =
     when (this) {
-        is Like -> column.like(value)
         is Contains -> column.like(
             LikePattern.ofLiteral("")
                 .plus("%")
@@ -68,22 +67,22 @@ private fun <T : Any> StringOperator<T>.compile(column: Column<String?>): Op<Boo
         is Matches -> column.regexp(value)
     }
 
-private fun <T : Any, V> FieldOperator<T, V>.compile(column: Column<V>) =
+private fun <T> FieldOperator<T>.compile(column: Column<T>) =
     @Suppress("UNCHECKED_CAST")
     when (this) {
         is EqualityOperator -> when (this) {
-            is Eq<*, *> -> column.eq(value)
-            is NEq<*, *> -> column.neq(value)
+            is Eq<*> -> column.eq(value)
+            is NEq<*> -> column.neq(value)
         }
 
         is ComparisonOperator -> when (this) {
             is ValueComparisonOperator -> when (this) {
-                is Gt<*, *> -> column.greater(value)
-                is Gte<*, *> -> column.greaterEq(value)
-                is Lt<*, *> -> column.less(value)
-                is Lte<*, *> -> column.lessEq(value)
+                is Gt<*> -> column.greater(value)
+                is Gte<*> -> column.greaterEq(value)
+                is Lt<*> -> column.less(value)
+                is Lte<*> -> column.lessEq(value)
             }
-            is Between<*, *> -> column.between(start, end)
+            is Between<*> -> column.between(start, end)
         }
 
         is StringOperator -> compile(column as Column<String?>)
@@ -99,27 +98,31 @@ private fun <T : Any, V> FieldOperator<T, V>.compile(column: Column<V>) =
         }
     }
 
-private fun <T : Any> Operator.compile(relations: PropertyColumRelations<T>): Op<Boolean> =
+
+private fun <T> FieldOperator<T>.compile(relations: PropertyColumnRelations): Op<Boolean> =
+    compile(column = relations[path])
+
+internal fun Operator.compile(relations: PropertyColumnRelations): Op<Boolean> =
     when (this) {
-        is GroupOperator<*> -> {
-            operators.map { it.compile(relations) }.let {
-                when (this) {
-                    is AllOf<*> -> it.fold(Op.TRUE as Op<Boolean>) { a, b -> a and b }
-                    is OneOf<*> -> it.fold(Op.FALSE as Op<Boolean>) { a, b -> a or b }
-                    is Not<*> -> not(it.fold(Op.TRUE as Op<Boolean>) { a, b -> a and b })
-                }
+        is LogicalOperator -> {
+            when (this) {
+                is AllOf ->
+                    operators.fold(Op.TRUE as Op<Boolean>) { a, b ->
+                        a and b.compile(relations)
+                    }
+                is OneOf ->
+                    operators.fold(Op.FALSE as Op<Boolean>) {
+                        a, b -> a or b.compile(relations)
+                    }
+                is Not -> not(operator.compile(relations))
             }
         }
 
-        is FieldOperator<*, *> -> {
-            val relation = relations.firstOrNull { it.prop == prop }
-                    ?: error("No relation found for property $prop")
-
-            @Suppress("UNCHECKED_CAST")
-            (this as FieldOperator<T, Any>).compile(relation.column as Column<Any>)
-        }
+        is FieldOperator<*> -> compile(relations)
     }
 
-internal infix fun <T : Any, TFilters : Filters<T, TFilters>> TFilters.compile(
-    relations: PropertyColumRelations<T>
-): Op<Boolean> = this.build().compile(relations)
+fun <T : Any, TFilters : Filters<T, TFilters>> TFilters.compile(
+    relations: PropertyColumnRelations,
+    factory: () -> TFilters
+): Op<Boolean> =
+    this.build(factory).compile(relations)

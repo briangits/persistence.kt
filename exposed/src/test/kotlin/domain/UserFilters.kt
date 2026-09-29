@@ -1,14 +1,9 @@
 package domain
 
-import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.filters.FilterBuilder
+import io.github.briangits.persistence.query.filters.Filters
 
-class UserFilters : Filters<User, UserFilters>(::UserFilters) {
-    val id = User::id
-    val name = User::name
-    val email = User::email
-    val age = User::age
-}
+class UserFilters : UserProperties(), Filters<User, UserFilters>
 
 fun createFilters(builder: FilterBuilder<UserFilters>): UserFilters =
     UserFilters().apply(builder)

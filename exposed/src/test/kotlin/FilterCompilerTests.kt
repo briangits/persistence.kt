@@ -1,9 +1,11 @@
 
 import domain.User
+import domain.UserFilters
 import domain.createFilters
+import infrustructure.UserEntityOperator
 import infrustructure.Users
-import io.github.briangits.persistence.exposed.filters.compile
-import io.github.briangits.persistence.exposed.relations.PropertyColumRelation
+import io.github.briangits.persistence.exposed.query.filters.compile
+import io.github.briangits.persistence.query.properties.property.explode
 import org.h2.Driver
 import org.jetbrains.exposed.v1.core.LikePattern
 import org.jetbrains.exposed.v1.core.Op
@@ -50,7 +52,7 @@ class FilterCompilerTests {
             age neq 30
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
 
         val expected = Op.TRUE
             .and(Users.firstName eq "John")
@@ -69,7 +71,7 @@ class FilterCompilerTests {
             age.between(18, 65)
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
 
         val expected = Op.TRUE
             .and(Users.age greater 20)
@@ -92,10 +94,9 @@ class FilterCompilerTests {
             }
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
         println(op.toString())
         val expected = Op.TRUE
-            .and(Users.name like "Jo%")
             .and(
                 Users.firstName like LikePattern.ofLiteral("").plus("%")
                     .plus(LikePattern.ofLiteral("John"))
@@ -117,7 +118,7 @@ class FilterCompilerTests {
             email.isNotNull()
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
 
         val expected = Op.TRUE
             .and(Users.email.isNull())
@@ -133,7 +134,7 @@ class FilterCompilerTests {
             age notIn listOf(10, 40)
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
 
         val expected = Op.TRUE
             .and(Users.age inList listOf(20, 30))
@@ -158,7 +159,7 @@ class FilterCompilerTests {
             }
         }
 
-        val op = filters compile relations
+        val op = filters.compile(relations) { UserFilters() }
 
         val expected = Op.TRUE
             .and(
