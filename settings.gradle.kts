@@ -24,6 +24,7 @@ dependencyResolutionManagement {
         create("kotlinx").from(files("version-catalogs/kotlinx.versions.toml"))
         create("exposed").from(files("version-catalogs/exposed.versions.toml"))
         create("libutils").from(files("version-catalogs/libutils.versions.toml"))
+        create("pedestal").from(files("version-catalogs/pedestal.versions.toml"))
     }
 }
 

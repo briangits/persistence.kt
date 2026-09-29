@@ -1,6 +1,8 @@
 
 import UserProperties.name
 import io.github.briangits.persistence.query.filters.FilterBuilder
+import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.query.filters.build
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Between
 import io.github.briangits.persistence.query.filters.operators.Contains
@@ -55,7 +57,7 @@ open class UserProperties : Properties<User>() {
 
 class UserFilters :
     UserProperties(),
-    Filters<User, UserFilters> by Filters(::UserFilters) {
+    Filters<User, UserFilters> {
 
     fun olderThan(age: Int) { this.age gt age }
 
@@ -70,7 +72,6 @@ class FilterTests {
         val filters = createFilters {
             id eq "123"
             name.first neq "Jane"
-            email neq null
             email neq "johndoe@gmail.com"
 
             olderThan(25)
@@ -84,7 +85,6 @@ class FilterTests {
                         .nested(PersonName::first),
                     value = "Jane"
                 ),
-                IsNotNull(path = User::email.directPath()),
                 NEq(path = User::email.directPath(), value = "johndoe@gmail.com"),
                 Gt(path = User::age.directPath(), value = 25)
             )
@@ -188,15 +188,18 @@ class FilterTests {
         val filters = createFilters {
             email.isNull()
             email.isNotNull()
+
+            email eq null
+            email neq null
         }
 
         val expected = AllOf(
-            listOf(
-                IsNull(User::email.directPath()),
-                IsNotNull(User::email.directPath())
             operators = listOf(
                 IsNull(path = User::email.directPath()),
                 IsNotNull(path = User::email.directPath()),
+
+                IsNull(path = User::email.directPath()),
+                IsNotNull(path = User::email.directPath())
             )
         )
 

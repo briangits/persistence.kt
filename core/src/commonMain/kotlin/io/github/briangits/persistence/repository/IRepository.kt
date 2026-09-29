@@ -1,8 +1,8 @@
 package io.github.briangits.persistence.repository
 
-import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
+import io.github.briangits.persistence.query.filters.Filters
 import io.github.briangits.persistence.query.pagination.Paginated
 
 interface IRepository<T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> {

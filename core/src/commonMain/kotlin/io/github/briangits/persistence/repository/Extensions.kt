@@ -1,8 +1,8 @@
 package io.github.briangits.persistence.repository
 
-import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
+import io.github.briangits.persistence.query.filters.Filters
 
 /**
  * Finds a paginated subset of entities matching the criteria defined in the [block],

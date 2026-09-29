@@ -1,6 +1,6 @@
 package io.github.briangits.persistence.repository
 
-import io.github.briangits.persistence.query.Filters
+import io.github.briangits.persistence.query.filters.Filters
 
 abstract class Repository<T : Any, TCreate : Any, TFilter : Filters<T, TFilter>>(
     override val id: TFilter.(T) -> Unit,
