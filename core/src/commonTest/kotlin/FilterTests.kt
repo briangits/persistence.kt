@@ -1,10 +1,5 @@
 
 import UserProperties.name
-import io.github.briangits.persistence.query.properties.Properties
-import io.github.briangits.persistence.query.properties.directPath
-import io.github.briangits.persistence.query.properties.explode
-import io.github.briangits.persistence.query.properties.nested
-import io.github.briangits.persistence.query.Filters
 import io.github.briangits.persistence.query.filters.FilterBuilder
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Between
@@ -25,6 +20,10 @@ import io.github.briangits.persistence.query.filters.operators.NotIn
 import io.github.briangits.persistence.query.filters.operators.OneOf
 import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
+import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.persistence.query.properties.property.directPath
+import io.github.briangits.persistence.query.properties.property.explode
+import io.github.briangits.persistence.query.properties.property.nested
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -41,12 +40,10 @@ data class User(
     val friends: List<String>
 )
 
-open class UserProperties : Properties<User> {
+open class UserProperties : Properties<User>() {
     val id by User::id
 
-    open class name : explode<User, PersonName>(User::name) {
-        companion object : name()
-
+    object name : explode<User, PersonName>(User::name) {
         val first by PersonName::first
         val last by PersonName::last
     }
@@ -56,9 +53,6 @@ open class UserProperties : Properties<User> {
     val friends by User::friends
 }
 
-fun createFilters(builder: FilterBuilder<UserFilters>): AllOf =
-    UserFilters().apply(builder).build()
-
 class UserFilters :
     UserProperties(),
     Filters<User, UserFilters> by Filters(::UserFilters) {
@@ -66,6 +60,9 @@ class UserFilters :
     fun olderThan(age: Int) { this.age gt age }
 
 }
+
+fun createFilters(builder: FilterBuilder<UserFilters>): AllOf =
+    UserFilters().apply(builder).build { UserFilters() }
 
 class FilterTests {
     @Test
@@ -80,10 +77,11 @@ class FilterTests {
         }
 
         val expected = AllOf(
-            listOf(
+            operators = listOf<Operator>(
                 Eq(path = User::id.directPath(), value = "123"),
                 NEq(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = "Jane"
                 ),
                 IsNotNull(path = User::email.directPath()),
@@ -123,11 +121,13 @@ class FilterTests {
                 Lte(path = User::email.directPath(), value = "k"),
 
                 Gt(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = "J"
                 ),
                 Between(
-                    path = User::name.directPath().nested(PersonName::last),
+                    path = User::name.directPath()
+                        .nested(PersonName::last),
                     start = "B",
                     end = "E"
                 )
@@ -153,23 +153,28 @@ class FilterTests {
         val expected = AllOf(
             operators = listOf<Operator>(
                 Contains(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = "John"
                 ),
                 StartsWith(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = "John"
                 ),
                 EndsWith(
-                    path = User::name.directPath().nested(PersonName::last),
+                    path = User::name.directPath()
+                        .nested(PersonName::last),
                     value = "Doe"
                 ),
                 Matches(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = "John.*"
                 ),
                 Matches(
-                    path = User::name.directPath().nested(PersonName::first),
+                    path = User::name.directPath()
+                        .nested(PersonName::first),
                     value = Regex("John.*").pattern
                 )
             )
@@ -189,6 +194,9 @@ class FilterTests {
             listOf(
                 IsNull(User::email.directPath()),
                 IsNotNull(User::email.directPath())
+            operators = listOf(
+                IsNull(path = User::email.directPath()),
+                IsNotNull(path = User::email.directPath()),
             )
         )
 
@@ -229,7 +237,7 @@ class FilterTests {
         }
 
         val expected = AllOf(
-            listOf(
+            operators = listOf(
                 AllOf(
                     operators = listOf(
                         Gt(path = User::age.directPath(), value = 20),
@@ -243,8 +251,10 @@ class FilterTests {
                     )
                 ),
                 Not(
-                    operators = listOf(
-                        Eq(path = User::id.directPath(), value = "3")
+                    operator = AllOf(
+                        operators = listOf(
+                            Eq(path = User::id.directPath(), value = "3")
+                        )
                     )
                 )
             )
