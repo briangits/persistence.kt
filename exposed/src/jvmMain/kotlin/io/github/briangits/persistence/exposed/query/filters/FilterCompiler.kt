@@ -1,8 +1,6 @@
 package io.github.briangits.persistence.exposed.query.filters
 
 import io.github.briangits.persistence.exposed.relations.PropertyColumnRelations
-import io.github.briangits.persistence.query.filters.Filters
-import io.github.briangits.persistence.query.filters.build
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.ArrayOperator
 import io.github.briangits.persistence.query.filters.operators.Between
@@ -30,6 +28,8 @@ import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
 import io.github.briangits.persistence.query.filters.operators.StringOperator
 import io.github.briangits.persistence.query.filters.operators.ValueComparisonOperator
+import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.persistence.query.properties.buildFilters
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.LikePattern
 import org.jetbrains.exposed.v1.core.Op
@@ -121,8 +121,8 @@ internal fun Operator.compile(relations: PropertyColumnRelations): Op<Boolean> =
         is FieldOperator<*> -> compile(relations)
     }
 
-fun <T : Any, TFilters : Filters<T, TFilters>> TFilters.compile(
+internal fun <T : Any, TProperties : Properties<T, TProperties>> TProperties.compile(
     relations: PropertyColumnRelations,
-    factory: () -> TFilters
+    factory: () -> TProperties
 ): Op<Boolean> =
-    this.build(factory).compile(relations)
+    this.buildFilters(factory).compile(relations)

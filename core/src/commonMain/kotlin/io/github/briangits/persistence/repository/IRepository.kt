@@ -2,26 +2,26 @@ package io.github.briangits.persistence.repository
 
 import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
-import io.github.briangits.persistence.query.filters.Filters
 import io.github.briangits.persistence.query.pagination.Paginated
+import io.github.briangits.persistence.query.properties.Properties
 
-interface IRepository<T : Any, TCreate : Any, TFilters : Filters<T, TFilters>> {
+interface IRepository<T : Any, TCreate : Any, TProperties : Properties<T, TProperties>> {
 
-    val id: TFilters.(T) -> Unit
+    val id: TProperties.(T) -> Unit
 
-    val filters: () -> TFilters
+    val properties: () -> TProperties
 
-    suspend fun count(block: FilterBuilder<TFilters> = {}): Long
+    suspend fun count(block: FilterBuilder<TProperties> = {}): Long
 
-    suspend fun exists(block: FilterBuilder<TFilters> = {}): Boolean
+    suspend fun exists(block: FilterBuilder<TProperties> = {}): Boolean
 
-    suspend fun find(block: FilterBuilder<TFilters> = {}): T?
+    suspend fun find(block: FilterBuilder<TProperties> = {}): T?
 
-    suspend fun findAll(block: FilterBuilder<TFilters> = {}): List<T>
+    suspend fun findAll(block: FilterBuilder<TProperties> = {}): List<T>
 
     suspend fun findAll(
         pagination: Pagination,
-        block: FilterBuilder<TFilters> = {}
+        block: FilterBuilder<TProperties> = {}
     ): Paginated<T>
 
     fun create(create: TCreate): T

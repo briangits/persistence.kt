@@ -1,7 +1,6 @@
 
-import domain.UserFilters
+import domain.UserProperties
 import domain.UserProperties.name
-import domain.createFilters
 import infrustructure.UserEntityOperator
 import infrustructure.Users
 import io.github.briangits.persistence.exposed.query.filters.compile
@@ -30,6 +29,10 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+private fun createFilters(block: UserProperties.() -> Unit) =
+    UserProperties().apply(block)
+        .compile(UserEntityOperator.relations) { UserProperties() }
+
 class FilterCompilerTests {
     val relations = UserEntityOperator.relations
 
@@ -47,13 +50,11 @@ class FilterCompilerTests {
             age neq 30
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-
         val expected = Op.TRUE
             .and(Users.firstName eq "John")
             .and(Users.age neq 30)
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 
     @Test
@@ -66,8 +67,6 @@ class FilterCompilerTests {
             age.between(18, 65)
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-
         val expected = Op.TRUE
             .and(Users.age greater 20)
             .and(Users.age greaterEq 18)
@@ -75,7 +74,7 @@ class FilterCompilerTests {
             .and(Users.age lessEq 35)
             .and(Users.age.between(18, 65))
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 
     @Test
@@ -89,8 +88,6 @@ class FilterCompilerTests {
             }
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-        println(op.toString())
         val expected = Op.TRUE
             .and(
                 Users.firstName like LikePattern.ofLiteral("").plus("%")
@@ -103,7 +100,7 @@ class FilterCompilerTests {
                     .plus(LikePattern.ofLiteral("Doe"))
             ).and(Users.firstName regexp "John.*")
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 
     @Test
@@ -113,13 +110,11 @@ class FilterCompilerTests {
             email.isNotNull()
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-
         val expected = Op.TRUE
             .and(Users.email.isNull())
             .and(Users.email.isNotNull())
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 
     @Test
@@ -129,13 +124,11 @@ class FilterCompilerTests {
             age notIn listOf(10, 40)
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-
         val expected = Op.TRUE
             .and(Users.age inList listOf(20, 30))
             .and(Users.age notInList listOf(10, 40))
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 
     @Test
@@ -154,8 +147,6 @@ class FilterCompilerTests {
             }
         }
 
-        val op = filters.compile(relations) { UserFilters() }
-
         val expected = Op.TRUE
             .and(
                 Op.TRUE
@@ -172,6 +163,6 @@ class FilterCompilerTests {
                 )
             )
 
-        assertEquals(expected.toString(), op.toString())
+        assertEquals(expected.toString(), filters.toString())
     }
 }

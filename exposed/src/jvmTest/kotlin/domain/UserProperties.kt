@@ -3,7 +3,7 @@ package domain
 import io.github.briangits.persistence.query.properties.Properties
 import io.github.briangits.persistence.query.properties.property.explode
 
-open class UserProperties : Properties<User>() {
+open class UserProperties : Properties<User, UserProperties>() {
     val id by User::id
 
     object name : explode<User, PersonName>(User::name) {

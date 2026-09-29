@@ -9,7 +9,7 @@ import opensavvy.pedestal.weak.ExperimentalWeakApi
 import opensavvy.pedestal.weak.WeakMap
 import opensavvy.pedestal.weak.getOrPut
 
-private sealed interface FilterEntry<TSelf : Filters<*, TSelf>> {
+internal sealed interface FilterEntry<TSelf : Filters<*, TSelf>> {
 
     fun compile(factory: () -> TSelf): Operator
 
@@ -57,7 +57,7 @@ private sealed interface FilterEntry<TSelf : Filters<*, TSelf>> {
 }
 
 @OptIn(ExperimentalWeakApi::class)
-interface Filters<T : Any, TSelf : Filters<T, TSelf>> : BaseFilters<T, TSelf> {
+internal interface Filters<T : Any, TSelf : Filters<T, TSelf>> : BaseFilters<T, TSelf> {
 
         companion object {
             private val state = WeakMap<Any, MutableList<FilterEntry<*>>>()
@@ -91,5 +91,5 @@ interface Filters<T : Any, TSelf : Filters<T, TSelf>> : BaseFilters<T, TSelf> {
 
 }
 
-fun <T : Any, TSelf : Filters<T, TSelf>> Filters<T, TSelf>.build(factory: () -> TSelf): AllOf =
+internal fun <T : Any, TSelf : Filters<T, TSelf>> Filters<T, TSelf>.build(factory: () -> TSelf): AllOf =
     AllOf(operators = compile(factory))

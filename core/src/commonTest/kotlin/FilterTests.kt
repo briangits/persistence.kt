@@ -1,8 +1,6 @@
 
 import UserProperties.name
 import io.github.briangits.persistence.query.filters.FilterBuilder
-import io.github.briangits.persistence.query.filters.Filters
-import io.github.briangits.persistence.query.filters.build
 import io.github.briangits.persistence.query.filters.operators.AllOf
 import io.github.briangits.persistence.query.filters.operators.Between
 import io.github.briangits.persistence.query.filters.operators.Contains
@@ -23,6 +21,7 @@ import io.github.briangits.persistence.query.filters.operators.OneOf
 import io.github.briangits.persistence.query.filters.operators.Operator
 import io.github.briangits.persistence.query.filters.operators.StartsWith
 import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.persistence.query.properties.buildFilters
 import io.github.briangits.persistence.query.properties.property.directPath
 import io.github.briangits.persistence.query.properties.property.explode
 import io.github.briangits.persistence.query.properties.property.nested
@@ -42,7 +41,7 @@ data class User(
     val friends: List<String>
 )
 
-open class UserProperties : Properties<User>() {
+open class UserProperties : Properties<User, UserProperties>() {
     val id by User::id
 
     object name : explode<User, PersonName>(User::name) {
@@ -53,18 +52,14 @@ open class UserProperties : Properties<User>() {
     val email by User::email
     val age by User::age
     val friends by User::friends
-}
 
-class UserFilters :
-    UserProperties(),
-    Filters<User, UserFilters> {
-
+    // Filters
     fun olderThan(age: Int) { this.age gt age }
 
 }
 
-fun createFilters(builder: FilterBuilder<UserFilters>): AllOf =
-    UserFilters().apply(builder).build { UserFilters() }
+fun createFilters(builder: FilterBuilder<UserProperties>): AllOf =
+    UserProperties().apply(builder).buildFilters { UserProperties() }
 
 class FilterTests {
     @Test

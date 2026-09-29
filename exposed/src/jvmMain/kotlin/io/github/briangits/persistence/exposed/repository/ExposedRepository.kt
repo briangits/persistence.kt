@@ -5,8 +5,8 @@ import io.github.briangits.persistence.exposed.relations.set
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
 import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
-import io.github.briangits.persistence.query.filters.Filters
 import io.github.briangits.persistence.query.pagination.Paginated
+import io.github.briangits.persistence.query.properties.Properties
 import io.github.briangits.persistence.repository.IRepository
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
@@ -18,31 +18,31 @@ interface ExposedRepository<
     TTable : Table,
     T : Any,
     TCreate : Any,
-    TFilters : Filters<T, TFilters>
-> : IRepository<T, TCreate, TFilters> {
+    TProperties : Properties<T, TProperties>
+> : IRepository<T, TCreate, TProperties> {
     val table: TTable
     val operator: EntityOperator<T>
 
     val transaction: TransactionControl
 
-    private fun TFilters.compile() = this.compile(operator.relations, filters)
-    private fun FilterBuilder<TFilters>.compile() = filters().apply(this).compile()
+    private fun TProperties.compile() = this.compile(operator.relations, properties)
+    private fun FilterBuilder<TProperties>.compile() = properties().apply(this).compile()
 
-    override suspend fun count(block: FilterBuilder<TFilters>): Long =
+    override suspend fun count(block: FilterBuilder<TProperties>): Long =
         transaction.execute {
             table.selectAll()
                 .where { block.compile() }
                 .count()
         }
 
-    override suspend fun exists(block: FilterBuilder<TFilters>): Boolean =
+    override suspend fun exists(block: FilterBuilder<TProperties>): Boolean =
         transaction.execute {
             !table.selectAll()
                 .where { block.compile() }
                 .empty()
         }
 
-    override suspend fun find(block: FilterBuilder<TFilters>): T? =
+    override suspend fun find(block: FilterBuilder<TProperties>): T? =
         transaction.execute {
             table.selectAll()
                 .where { block.compile() }
@@ -51,7 +51,7 @@ interface ExposedRepository<
                 ?.let { operator.fromDB(it) }
         }
 
-    override suspend fun findAll(block: FilterBuilder<TFilters>): List<T> =
+    override suspend fun findAll(block: FilterBuilder<TProperties>): List<T> =
         transaction.execute {
             table.selectAll()
                 .where { block.compile() }
@@ -60,7 +60,7 @@ interface ExposedRepository<
 
     override suspend fun findAll(
         pagination: Pagination,
-        block: FilterBuilder<TFilters>
+        block: FilterBuilder<TProperties>
     ): Paginated<T> =
         transaction.execute {
             val offset = pagination.offset
@@ -100,7 +100,7 @@ interface ExposedRepository<
 
     override suspend fun delete(entity: T) {
         transaction.execute {
-            val filter = filters().apply { id(this, entity) }
+            val filter = properties().apply { id(this, entity) }
             table.deleteWhere(limit = 1) { filter.compile() }
         }
     }
