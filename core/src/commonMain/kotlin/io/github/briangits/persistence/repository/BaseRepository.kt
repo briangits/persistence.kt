@@ -5,7 +5,7 @@ import io.github.briangits.persistence.query.filters.FilterBuilder
 import io.github.briangits.persistence.query.pagination.Paginated
 import io.github.briangits.persistence.query.properties.Properties
 
-interface IRepository<T : Any, TCreate : Any, TProperties : Properties<T, TProperties>> {
+interface BaseRepository<T : Any, TProperties : Properties<T, TProperties>> {
 
     val id: TProperties.(T) -> Unit
 
@@ -23,8 +23,6 @@ interface IRepository<T : Any, TCreate : Any, TProperties : Properties<T, TPrope
         pagination: Pagination,
         block: FilterBuilder<TProperties> = {}
     ): Paginated<T>
-
-    fun create(create: TCreate): T
 
     suspend fun save(entity: T): T
 

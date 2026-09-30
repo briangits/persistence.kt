@@ -2,10 +2,9 @@ package repository
 
 import closeDB
 import createDB
-import domain.NewUser
 import domain.PersonName
+import domain.User
 import infrustructure.ExposedUserRepository
-import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.findAll
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
@@ -21,13 +20,11 @@ class PaginationTests {
 
             repeat(10) {
                 repository.save {
-                    create {
-                        NewUser(
-                            name = PersonName("User", "$it"),
-                            email = "user$it@example.com",
-                            age = 20 + it
-                        )
-                    }
+                    User(
+                        name = PersonName("User", "$it"),
+                        email = "user$it@example.com",
+                        age = 20 + it
+                    )
                 }
             }
 
@@ -48,13 +45,11 @@ class PaginationTests {
 
             repeat(10) {
                 repository.save {
-                    create {
-                        NewUser(
-                            name = PersonName("User", "$it"),
-                            email = null,
-                            age = 20 + it
-                        )
-                    }
+                    User(
+                        name = PersonName("User", "$it"),
+                        email = "user$it@example.com",
+                        age = 20 + it
+                    )
                 }
             }
 
@@ -75,13 +70,11 @@ class PaginationTests {
 
             repeat(5) {
                 repository.save {
-                    create {
-                        NewUser(
-                            name = PersonName("User", "$it"),
-                            email = null,
-                            age = 20 + it
-                        )
-                    }
+                    User(
+                        name = PersonName("User", "$it"),
+                        email = "user$it@example.com",
+                        age = 20 + it
+                    )
                 }
             }
 
@@ -102,13 +95,11 @@ class PaginationTests {
 
             repeat(5) {
                 repository.save {
-                    create {
-                        NewUser(
-                            name = PersonName("User", "$it"),
-                            email = null,
-                            age = 20 + it
-                        )
-                    }
+                    User(
+                        name = PersonName("User", "$it"),
+                        email = "user$it@example.com",
+                        age = 20 + it
+                    )
                 }
             }
 

@@ -7,7 +7,7 @@ import io.github.briangits.persistence.query.Pagination
 import io.github.briangits.persistence.query.filters.FilterBuilder
 import io.github.briangits.persistence.query.pagination.Paginated
 import io.github.briangits.persistence.query.properties.Properties
-import io.github.briangits.persistence.repository.IRepository
+import io.github.briangits.persistence.repository.BaseRepository
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -17,9 +17,8 @@ import org.jetbrains.exposed.v1.jdbc.upsert
 interface ExposedRepository<
     TTable : Table,
     T : Any,
-    TCreate : Any,
     TProperties : Properties<T, TProperties>
-> : IRepository<T, TCreate, TProperties> {
+> : BaseRepository<T, TProperties> {
     val table: TTable
     val operator: EntityOperator<T>
 

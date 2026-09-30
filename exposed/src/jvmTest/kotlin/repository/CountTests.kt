@@ -2,10 +2,9 @@ package repository
 
 import closeDB
 import createDB
-import domain.NewUser
 import domain.PersonName
+import domain.User
 import infrustructure.ExposedUserRepository
-import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
 import runInTransaction
@@ -18,31 +17,25 @@ class CountTests {
             val repository = ExposedUserRepository(control)
 
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "1"),
-                        email = null,
-                        age = 20
-                    )
-                }
+                User(
+                    name = PersonName("User", "1"),
+                    email = null,
+                    age = 20
+                )
             }
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "2"),
-                        email = "user2@example.com",
-                        age = 25
-                    )
-                }
+                User(
+                    name = PersonName("User", "2"),
+                    email = "user2@example.com",
+                    age = 25
+                )
             }
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "3"),
-                        email = "user3@example.com",
-                        age = 20
-                    )
-                }
+                User(
+                    name = PersonName("User", "3"),
+                    email = "user3@example.com",
+                    age = 20
+                )
             }
 
             assertEquals(3, repository.count())
@@ -56,31 +49,25 @@ class CountTests {
             val repository = ExposedUserRepository(control)
 
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "1"),
-                        email = null,
-                        age = 20
-                    )
-                }
+                User(
+                    name = PersonName("User", "1"),
+                    email = null,
+                    age = 20
+                )
             }
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "2"),
-                        email = "user2@example.com",
-                        age = 25
-                    )
-                }
+                User(
+                    name = PersonName("User", "2"),
+                    email = "user2@example.com",
+                    age = 25
+                )
             }
             repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("User", "3"),
-                        email = "user3@example.com",
-                        age = 25
-                    )
-                }
+                User(
+                    name = PersonName("User", "3"),
+                    email = "user3@example.com",
+                    age = 25
+                )
             }
 
             assertEquals(2, repository.count { age eq 25 })

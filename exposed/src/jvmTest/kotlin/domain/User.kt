@@ -9,11 +9,15 @@ data class User(
     val age: Int
 ) {
 
-    constructor(user: NewUser) : this(
+    constructor(
+        name: PersonName,
+        email: String?,
+        age: Int
+    ) : this(
         id = Uuid.random(),
-        name = user.name,
-        email = user.email,
-        age = user.age
+        name = name,
+        email = email,
+        age = age
     )
 
 }

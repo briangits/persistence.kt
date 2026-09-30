@@ -1,11 +1,9 @@
 
-import domain.NewUser
 import domain.PersonName
 import domain.User
 import domain.UserRepository
 import infrustructure.ExposedUserRepository
 import io.github.briangits.persistence.exposed.ExposedPersistence
-import io.github.briangits.persistence.repository.create
 import io.github.briangits.persistence.repository.get
 import io.github.briangits.persistence.repository.save
 import kotlinx.coroutines.Dispatchers
@@ -57,13 +55,11 @@ class ExposedPersistenceTest {
             val repository = get<UserRepository>()
 
             return@transaction repository.save {
-                create {
-                    NewUser(
-                        name = PersonName("Jane", "Doe"),
-                        email = "janedoe@gmail.com",
-                        age = 25
-                    )
-                }
+                User(
+                    name = PersonName("Jane", "Doe"),
+                    email = "janedoe@gmail.com",
+                    age = 25
+                )
             }
         }
 
@@ -90,13 +86,11 @@ class ExposedPersistenceTest {
             persistence.transaction {
                 val repository = get<UserRepository>()
                 user = repository.save {
-                    create {
-                        NewUser(
-                            name = PersonName("Jane", "Doe"),
-                            email = "janedoe@example.com",
-                            age = 25
-                        )
-                    }
+                    User(
+                        name = PersonName("Jane", "Doe"),
+                        email = "janedoe@example.com",
+                        age = 25
+                    )
                 }
 
                 throw Exception("Transaction rollback test")
