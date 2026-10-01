@@ -1,5 +1,0 @@
-[versions]
-weak = "3.2.2"
-
-[libraries]
-weak = { module = "dev.opensavvy.pedestal:weak", version.ref = "weak" }

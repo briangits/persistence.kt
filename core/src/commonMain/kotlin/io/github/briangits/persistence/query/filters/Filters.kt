@@ -1,95 +1,96 @@
 package io.github.briangits.persistence.query.filters
 
-import io.github.briangits.persistence.query.BaseFilters
 import io.github.briangits.persistence.query.filters.operators.AllOf
-import io.github.briangits.persistence.query.filters.operators.Not
-import io.github.briangits.persistence.query.filters.operators.OneOf
+import io.github.briangits.persistence.query.filters.operators.Between
+import io.github.briangits.persistence.query.filters.operators.Contains
+import io.github.briangits.persistence.query.filters.operators.EndsWith
+import io.github.briangits.persistence.query.filters.operators.Eq
+import io.github.briangits.persistence.query.filters.operators.Gt
+import io.github.briangits.persistence.query.filters.operators.Gte
+import io.github.briangits.persistence.query.filters.operators.In
+import io.github.briangits.persistence.query.filters.operators.IsNotNull
+import io.github.briangits.persistence.query.filters.operators.IsNull
+import io.github.briangits.persistence.query.filters.operators.Lt
+import io.github.briangits.persistence.query.filters.operators.Lte
+import io.github.briangits.persistence.query.filters.operators.Matches
+import io.github.briangits.persistence.query.filters.operators.NEq
+import io.github.briangits.persistence.query.filters.operators.NotIn
 import io.github.briangits.persistence.query.filters.operators.Operator
-import opensavvy.pedestal.weak.ExperimentalWeakApi
-import opensavvy.pedestal.weak.WeakMap
-import opensavvy.pedestal.weak.getOrPut
+import io.github.briangits.persistence.query.filters.operators.StartsWith
+import io.github.briangits.persistence.query.properties.property.AnyProperty
 
-internal sealed interface FilterEntry<TSelf : Filters<*, TSelf>> {
+@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+private typealias Exact = kotlin.internal.Exact
 
-    fun compile(factory: () -> TSelf): Operator
+interface Filters<TSelf : Filters<TSelf>> {
 
-    class Value<TSelf : Filters<*, TSelf>>(
-        val operator: Operator
-    ) : FilterEntry<TSelf> {
-        override fun compile(factory: () -> TSelf): Operator = operator
-    }
+    fun add(operator: Operator)
 
-    class All<TSelf : Filters<*, TSelf>>(
-        val block: TSelf.() -> Unit
-    ) : FilterEntry<TSelf> {
-        override fun compile(factory: () -> TSelf): Operator =
-            AllOf(
-                operators = factory().run {
-                    block()
+    // Equality
+    infix fun <V> AnyProperty<@Exact V>.eq(value: V) =
+        if (value == null) isNull()
+        else add(operator = Eq(path = this, value))
 
-                    compile(factory)
-                }
-            )
-    }
+    infix fun <V> AnyProperty<@Exact V>.neq(value: V) =
+        if (value == null) isNotNull()
+        else add(operator = NEq(path = this, value))
 
-    class One<TSelf : Filters<*, TSelf>>(
-        val block: TSelf.() -> Unit
-    ) : FilterEntry<TSelf> {
-        override fun compile(factory: () -> TSelf): Operator =
-            OneOf(
-                operators = factory().run {
-                    block()
+    // Comparison
+    infix fun <V : Comparable<V>> AnyProperty<V?>.gt(value: V) =
+        add(operator = Gt(path = this, value))
 
-                    compile(factory)
-                }
-            )
-    }
+    infix fun <V : Comparable<V>> AnyProperty<V?>.gte(value: V) =
+        add(operator = Gte(path = this, value))
 
-    class Negated<TSelf : Filters<*, TSelf>>(
-        val block: TSelf.() -> Unit
-    ) : FilterEntry<TSelf> {
-        override fun compile(factory: () -> TSelf): Operator =
-            Not(
-                operator = All(block).compile(factory)
-            )
-    }
+    infix fun <V : Comparable<V>> AnyProperty<V?>.lt(value: V) =
+        add(operator = Lt(path = this, value))
 
-}
+    infix fun <V : Comparable<V>> AnyProperty<V?>.lte(value: V) =
+        add(operator = Lte(path = this, value))
 
-@OptIn(ExperimentalWeakApi::class)
-internal interface Filters<T : Any, TSelf : Filters<T, TSelf>> : BaseFilters<T, TSelf> {
+    fun <V : Comparable<V>> AnyProperty<V?>.between(start: V, end: V) =
+        add(operator = Between(path = this, start, end))
 
-        companion object {
-            private val state = WeakMap<Any, MutableList<FilterEntry<*>>>()
-        }
+    // Strings
+    infix fun AnyProperty<String?>.contains(value: String) =
+        add(operator = Contains(path = this, value))
 
-    @Suppress("UNCHECKED_CAST")
-    private val entries: MutableList<FilterEntry<TSelf>>
-        get() = state.getOrPut(this) { mutableListOf() } as MutableList<FilterEntry<TSelf>>
+    infix fun AnyProperty<String?>.startsWith(value: String) =
+        add(operator = StartsWith(path = this, value))
 
+    infix fun AnyProperty<String?>.endsWith(value: String) =
+        add(operator = EndsWith(path = this, value))
 
-    override fun add(operator: Operator) {
-        entries += FilterEntry.Value(operator)
-    }
+    infix fun AnyProperty<String?>.matches(value: String) =
+        add(operator = Matches(path = this, value))
 
-    override fun allOf(block: TSelf.() -> Unit) {
-        entries += FilterEntry.All(block)
-    }
+    infix fun AnyProperty<String?>.matches(value: Regex) =
+        add(operator = Matches(path = this, value.pattern))
 
-    override fun oneOf(block: TSelf.() -> Unit) {
-        entries += FilterEntry.One(block)
-    }
+    // Arrays
+    infix fun <V> AnyProperty<V?>.`in`(values: Iterable<V>) =
+        add(operator = In(path = this, values))
 
-    override fun not(block: TSelf.() -> Unit) {
-        entries += FilterEntry.Negated(block)
-    }
+    infix fun <V> AnyProperty<V?>.notIn(value: Iterable<V>) =
+        add(operator = NotIn(path = this, value))
 
-    override fun compile(
-        factory: () -> TSelf
-    ): List<Operator> =
-        entries.map { it.compile(factory) }
+    // Null
+    fun <V> AnyProperty<V?>.isNull() =
+        add(operator = IsNull(path = this))
+
+    fun <V> AnyProperty<V?>.isNotNull() =
+        add(operator = IsNotNull(path = this))
+
+    // Logical
+    fun allOf(block: TSelf.() -> Unit)
+
+    fun oneOf(block: TSelf.() -> Unit)
+
+    fun not(block: TSelf.() -> Unit)
+
+    fun compile(factory: () -> TSelf): List<Operator>
 
 }
 
-internal fun <T : Any, TSelf : Filters<T, TSelf>> Filters<T, TSelf>.build(factory: () -> TSelf): AllOf =
+internal fun <TSelf : Filters<TSelf>> Filters<TSelf>.build(factory: () -> TSelf): AllOf =
     AllOf(operators = compile(factory))

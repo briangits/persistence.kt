@@ -45,11 +45,6 @@ kotlin {
     mingwX64()
 
     sourceSets {
-        commonMain.dependencies {
-            // Pedestal
-            implementation(pedestal.weak)
-        }
-
         commonTest.dependencies {
             implementation(kt.test)
         }

@@ -12,9 +12,6 @@ kotlin {
         commonMain.dependencies {
             api(projects.core)
 
-            // Pedestal
-            implementation(pedestal.weak)
-
             // Coroutines
             implementation(kotlinx.coroutines)
         }
